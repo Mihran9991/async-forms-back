@@ -1,0 +1,27 @@
+{
+  "name": "async-forms-back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpileOnly ./app.ts",
+    "prod": "tsc && node ./build/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mihran9991/async-forms-back.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mihran9991/async-forms-back/issues"
+  },
+  "homepage": "https://github.com/Mihran9991/async-forms-back#readme",
+  "dependencies": {
+    "@types/express": "^4.17.2",
+    "express": "^4.17.1",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.7.2"
+  }
+}
