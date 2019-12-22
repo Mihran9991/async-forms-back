@@ -1,17 +1,22 @@
-class User {
-    public constructor(uuid: String, name: String, surname: String, email: String, password: String, salt: String) {
-        this.uuid = uuid;
-        this.name = name;
-        this.surname = surname;
-        this.email = email;
-        this.password = password;
-        this.salt = salt;
-    }
+import { Table, Column, Model, PrimaryKey } from 'sequelize-typescript';
 
-    uuid: String;
-    name: String;
-    surname: String;
-    email: String;
-    password: String;
-    salt: String;
+@Table({
+    modelName: "User",
+    tableName: "users",
+    timestamps: true,
+})
+export class User extends Model {
+    @PrimaryKey
+    @Column
+    uuid: string;
+    @Column({ allowNull: false })
+    name: string;
+    @Column({ allowNull: false })
+    surname: string;
+    @Column({ allowNull: false, unique: true })
+    email: string;
+    @Column({ allowNull: false })
+    password: string;   
 }
+
+export default User;
