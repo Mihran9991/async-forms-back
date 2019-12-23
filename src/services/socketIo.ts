@@ -1,7 +1,6 @@
 import socketIO from "socket.io";
 import express from 'express';
 
-
 class SocketIOWrapper {
     public static getInstance(): SocketIOWrapper {
         if (!SocketIOWrapper.instance) {

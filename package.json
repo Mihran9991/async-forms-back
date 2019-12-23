@@ -32,6 +32,8 @@
     "@types/bcrypt": "3.0.0",
     "body-parser": "1.19.0",
     "@types/body-parser": "1.17.1",
+    "sequelize": "5.21.3",
+    "@types/sequelize": "4.27.16",
     "sequelize-typescript": "1.0.0",
     "reflect-metadata": "0.1.13",
     "mysql2": "2.0.2",

@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import { Sequelize } from 'sequelize-typescript';
 import User from "./entities/user";
 import * as DB_CONFIG from "./constants/db.constants";
-import UserRepository from './reposiroties/user.repository';
+import UserRepository from './repositories/user.repository';
 import UserService from './services/user.service';
 import { AuthService } from './services/auth.service';
 

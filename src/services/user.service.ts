@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import UserDto from "../dtos/user.dto";
-import UserRepository from "../reposiroties/user.repository";
+import UserRepository from "../repositories/user.repository";
 import { fromEntityToDto, fromDtoToEntity } from "../mappers/user.mappers";
 import { generateUUID } from "../utils/uuid.utils";
 import { BCRYPT_HASH_ROUNDS } from "../constants/auth.constants";
