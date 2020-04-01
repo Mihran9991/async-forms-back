@@ -7,7 +7,7 @@ import { Table, Column, Model, PrimaryKey } from 'sequelize-typescript';
 })
 export class User extends Model {
     @PrimaryKey
-    @Column
+    @Column({ allowNull: false, unique: true })
     uuid: string;
     @Column({ allowNull: false })
     name: string;

@@ -1,12 +1,9 @@
 import { sign, verify } from 'jsonwebtoken';
-import { JWT_SECRET, TOKEN_EXPIRE_TIME_MSECS } from '../constants/auth.constants';
+import { JWT_SECRET, TOKEN_EXPIRE_TIME } from '../constants/auth.constants';
+import TokenData from '../daos/jwt.token';
 
-export const generateJWTToken = (jwtToken: JWTToken): String => {
-    return sign(jwtToken, JWT_SECRET, { expiresIn: TOKEN_EXPIRE_TIME_MSECS })
-};
+export const generateJWTToken = (tokenData: TokenData): string =>
+    sign(tokenData.toJson(), JWT_SECRET, { expiresIn: TOKEN_EXPIRE_TIME });
 
-export const extractJWTToken = (token: string): String => {
-    // decoded is string || object
-    const decoded = verify(token, JWT_SECRET, { maxAge: TOKEN_EXPIRE_TIME_MSECS })
-    return "es hech, heto kanem";
-}
+export const extractJWTToken = (token: string): object | string =>
+    verify(token, JWT_SECRET, { maxAge: TOKEN_EXPIRE_TIME });

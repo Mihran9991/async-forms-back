@@ -1,15 +1,15 @@
 export class UserDto {
-    public constructor(name: string, surname: string, email: string, password: string) {
+    public constructor(uuid: string, name: string, surname: string, email: string) {
+        this.uuid = uuid;
         this.name = name;
         this.surname = surname;
         this.email = email;
-        this.password = password;
     }
 
+    uuid: string;
     name: string;
     surname: string;
     email: string;
-    password: string;
 }
 
 export default UserDto;

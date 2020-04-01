@@ -3,10 +3,10 @@ import UserDto from "../dtos/user.dto";
 
 export function fromEntityToDto(user: User): UserDto {
     return new UserDto(
+        user.uuid,
         user.name,
         user.surname,
-        user.email,
-        user.password
+        user.email
     );
 }
 
@@ -15,7 +15,6 @@ export function fromDtoToEntity(dto: UserDto): User {
     user.name = dto.name;
     user.surname = dto.surname;
     user.email = dto.email;
-    user.password = dto.password;
     return user;
 }
 

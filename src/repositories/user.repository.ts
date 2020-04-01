@@ -12,17 +12,20 @@ export class UserRepository {
         return this.repository.findAll();
     }
 
-    public async findByEmail(email: string): Promise<User> {
+    public async findByUUID(uuid: string): Promise<User|null> {
+        return this.repository.findOne({
+            where: {
+                uuid: uuid
+            }
+        });
+    }
+
+    public async findByEmail(email: string): Promise<User|null> {
         return this.repository.findOne({
             where: {
                 email: email
             }
-        }).then(user => {
-            if(user == null) {
-                throw new Error("user with email: " + email + " not found");
-            }
-            return user;
-        })
+        });
     }
 
     public async create(user: User): Promise<User> {

@@ -1,6 +1,9 @@
 import bcrypt from 'bcrypt';
 import { UserService } from "./user.service";
-import { UserDto } from "../dtos/user.dto";
+import { generateJWTToken } from "../utils/token.utils";
+import RegistrationDto from '../dtos/registration.dto';
+import LoginDto from '../dtos/login.dto';
+import TokenData from '../daos/jwt.token';
 
 export class AuthService {
     private userService: UserService;
@@ -9,20 +12,29 @@ export class AuthService {
         this.userService = userService;
     }
 
-    // TODO: instead of UserDto, use parameter of type, e.g. RegistrationRequest
-    public async register(dto: UserDto): Promise<UserDto> {
-        return this.userService.create(dto);
+    public async register(dto: RegistrationDto): Promise<String> {
+        return this.userService.create(dto)
+            .then(() => "User registered successfully");
     }
 
-    // TODO: replace these parameters with one parameter of type, e.g. UsernamePassword
-    public async login(email: string, password: string): Promise<boolean> {
-        return this.userService.findByEmail(email)
-            .then(user =>
-                this.checkPasswords(password, user.password));
+    public async login(dto: LoginDto): Promise<String> {
+        return this.userService.findByEmail(dto.email)
+            .then(user => {
+                if(!user) {
+                    return Promise.reject("User with email: " + dto.email + " not found");
+                }
+                return user;
+            })
+            .then(async user => {
+                if(!this.matchPasswords(dto.password, user.password)) {
+                    return Promise.reject("Passwords don't match");
+                }
+                return generateJWTToken(new TokenData(user.uuid));
+            });
     }
     
-    private async checkPasswords(password1: string, password2: string): Promise<boolean> {
-        return bcrypt.compare(password1, password2);
+    private matchPasswords(password1: string, password2: string): boolean {
+        return bcrypt.compareSync(password1, password2);
     }
 }
 
