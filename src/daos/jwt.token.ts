@@ -1,4 +1,6 @@
-export class TokenData {
+import { TokenType } from "../types/token.types";
+
+export class JWTTokenData implements TokenType {
     public constructor(userId: string, timestamp: number = new Date().getTime()) {
         this.userId = userId;
         this.timestamp = timestamp;
@@ -8,8 +10,8 @@ export class TokenData {
         return { userId: this.userId, timestamp: this.timestamp };
     }
 
-    timestamp: number
     userId: string;
+    timestamp: number;
 }
 
-export default TokenData;
+export default JWTTokenData;

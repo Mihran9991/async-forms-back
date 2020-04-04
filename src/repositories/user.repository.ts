@@ -1,5 +1,6 @@
 import { Repository } from 'sequelize-typescript';
 import User from "../entities/user";
+import { Nullable } from '../types/main.types';
 
 export class UserRepository {
     private repository: Repository<User>;
@@ -12,7 +13,7 @@ export class UserRepository {
         return this.repository.findAll();
     }
 
-    public async findByUUID(uuid: string): Promise<User|null> {
+    public async findByUUID(uuid: string): Promise<Nullable<User>> {
         return this.repository.findOne({
             where: {
                 uuid: uuid
@@ -20,7 +21,7 @@ export class UserRepository {
         });
     }
 
-    public async findByEmail(email: string): Promise<User|null> {
+    public async findByEmail(email: string): Promise<Nullable<User>> {
         return this.repository.findOne({
             where: {
                 email: email

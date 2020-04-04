@@ -12,12 +12,12 @@ export class AuthService {
         this.userService = userService;
     }
 
-    public async register(dto: RegistrationDto): Promise<String> {
+    public async register(dto: RegistrationDto): Promise<string> {
         return this.userService.create(dto)
             .then(() => "User registered successfully");
     }
 
-    public async login(dto: LoginDto): Promise<String> {
+    public async login(dto: LoginDto): Promise<string> {
         return this.userService.findByEmail(dto.email)
             .then(user => {
                 if(!user) {

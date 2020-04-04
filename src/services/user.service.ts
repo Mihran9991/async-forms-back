@@ -3,6 +3,7 @@ import UserRepository from "../repositories/user.repository";
 import { generateUUID } from "../utils/uuid.utils";
 import RegistrationDto from '../dtos/registration.dto';
 import User from '../entities/user';
+import { Nullable } from '../types/main.types';
 
 export class UserService {
     private userRepository: UserRepository;
@@ -15,15 +16,15 @@ export class UserService {
         return this.userRepository.findAll();
     }
 
-    public async findByUUID(uuid: string): Promise<User|null> {
+    public async findByUUID(uuid: string): Promise<Nullable<User>> {
         return this.userRepository.findByUUID(uuid);
     }
 
-    public async findByEmail(email: string): Promise<User|null> {
+    public async findByEmail(email: string): Promise<Nullable<User>> {
         return this.userRepository.findByEmail(email);
     }
 
-    public async create(dto: RegistrationDto): Promise<User> {
+    public async create(dto: RegistrationDto): Promise<Nullable<User>> {
         const user = new User();
         user.uuid = generateUUID();
         user.name = dto.name;

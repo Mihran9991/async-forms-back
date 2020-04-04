@@ -1,16 +1,22 @@
-import { extractJWTToken } from "../utils/token.utils"
-import TokenData from "../daos/jwt.token";
+import { decryptJWTToken, extractToken } from "../utils/token.utils"
+import UserService from "../services/user.service";
+import { GeneratedTokenType, Nullable } from "../types/main.types";
+import { Request, Response } from "express";
+import User from "../entities/user";
+import { INVALID_TOKEN } from "../constants/error.messages";
 
-export default (req: any, res: any, next: Function) => {
-    const header: String = req.headers.authorization || "";
-    if(header.length === 0) {
-        throw "Invalid token";
-    }
-    const token: string = header.split(' ')[1].trim();
+export default async (req: Request, res:Response, next: Function) => {
     try {
-        extractJWTToken(token) as TokenData;
+        const header: string = req.headers.authorization || "";
+        const token: string = extractToken(header);
+        const tokenData: GeneratedTokenType = decryptJWTToken(token);
+        const userService: UserService = res.locals.userService as UserService;
+        const user: Nullable<User> = await userService.findByUUID(tokenData.userId);
+        if(!user) {
+            throw INVALID_TOKEN;
+        }
         next();
     } catch(err) {
-        throw "Invalid token";
+        next(INVALID_TOKEN);
     }
-};
+}
