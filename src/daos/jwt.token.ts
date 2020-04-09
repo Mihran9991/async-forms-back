@@ -1,11 +1,17 @@
-class JWTToken {
-    public constructor(token: string, userId: string, expDate: Date) {
-        this.token = token;
+import { TokenType } from "../types/token.types";
+
+export class JWTTokenData implements TokenType {
+    public constructor(userId: string, timestamp: number = new Date().getTime()) {
         this.userId = userId;
-        this.expDate = expDate;
+        this.timestamp = timestamp;
     }
 
-    token: string;
+    public toJson(): object {
+        return { userId: this.userId, timestamp: this.timestamp };
+    }
+
     userId: string;
-    expDate: Date;
+    timestamp: number;
 }
+
+export default JWTTokenData;
