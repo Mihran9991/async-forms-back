@@ -1,9 +1,10 @@
+import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import AuthService from "../services/auth.service";
 import LoginDto from '../dtos/login.dto';
 import RegistrationDto from '../dtos/registration.dto';
 
-export async function registerRouter(req: any, res: any, authService: AuthService) {
+export async function registerRouter(req: Request, res: Response, authService: AuthService) {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -23,7 +24,7 @@ export async function registerRouter(req: any, res: any, authService: AuthServic
         );
 }
 
-export async function loginRouter(req: any, res: any, authService: AuthService) {
+export async function loginRouter(req: Request, res: Response, authService: AuthService) {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
