@@ -1,4 +1,4 @@
-import { TokenType } from "../types/token.types";
+import { TokenType } from "../types/main.types";
 
 export class JWTTokenData implements TokenType {
     public constructor(userId: string, timestamp: number = new Date().getTime()) {

@@ -17,24 +17,24 @@ export class AuthService {
             .then(() => "User registered successfully");
     }
 
+    private static matchPasswords(password1: string, password2: string): boolean {
+        return bcrypt.compareSync(password1, password2);
+    }
+
     public async login(dto: LoginDto): Promise<string> {
         return this.userService.findByEmail(dto.email)
             .then(user => {
-                if(!user) {
+                if (!user) {
                     return Promise.reject("User with email: " + dto.email + " not found");
                 }
                 return user;
             })
             .then(async user => {
-                if(!this.matchPasswords(dto.password, user.password)) {
+                if (!AuthService.matchPasswords(dto.password, user.password)) {
                     return Promise.reject("Passwords don't match");
                 }
                 return generateJWTToken(new TokenData(user.uuid));
             });
-    }
-    
-    private matchPasswords(password1: string, password2: string): boolean {
-        return bcrypt.compareSync(password1, password2);
     }
 }
 
