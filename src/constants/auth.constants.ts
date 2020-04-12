@@ -1,9 +1,5 @@
-export const JWT_SECRET = 'some-secret-key-for-jwt-token';  
-export const TOKEN_EXPIRE_TIME = '1h'
-export const BEARER_STR = 'Bearer';
+import { ConfigType } from "../types/main.types";
 
-export default {
-    JWT_SECRET,
-    TOKEN_EXPIRE_TIME,
-    BEARER_STR
-}
+export const BEARER_STR: string = "Bearer";
+export const JWT_SECRET: ConfigType = process.env.AUTH_JWT_SECRET;
+export const TOKEN_EXPIRE_TIME: ConfigType = process.env.AUTH_TOKEN_EXPIRE_TIME;
