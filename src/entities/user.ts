@@ -1,4 +1,5 @@
-import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { Column, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import ForgotRequest from "./forgot.request";
 
 @Table({
     modelName: "User",
@@ -17,6 +18,8 @@ export class User extends Model {
     email: string;
     @Column({ allowNull: false })
     password: string;
+    @HasMany(() => ForgotRequest)
+    forgotRequests: ForgotRequest[];
 }
 
 export default User;

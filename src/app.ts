@@ -10,6 +10,7 @@ import UserService from './services/user.service';
 import { AuthService } from './services/auth.service';
 import * as APP_CONFIG from "./constants/app.constants";
 import * as DB_CONFIG from "./constants/db.constants";
+import ForgotRequest from "./entities/forgot.request";
 
 const router = express.Router();
 
@@ -51,7 +52,7 @@ class App {
             password: DB_CONFIG.PASSWORD,
             database: DB_CONFIG.DATABASE,
         });
-        this.sequelize.addModels([User]);
+        this.sequelize.addModels([User, ForgotRequest]);
         this.sequelize.sync();
         console.log("Sequelize initiated successfully");
     }
@@ -78,13 +79,13 @@ class App {
     }
 
     public async start() {
-        console.log(`Initiating server, starting app on port ${ APP_CONFIG.PORT }...`);
+        console.log(`Initiating server, starting app on port ${APP_CONFIG.PORT}...`);
         this.server = this.app.listen(APP_CONFIG.PORT);
         console.log(`Server initiated successfully`);
         console.log(`Connecting sequelize to server...`);
         await SocketIO.getInstance().connect(this.server);
         console.log("Sequelize connected successfully");
-        console.log(`App successfully started on port ${ APP_CONFIG.PORT }`);
+        console.log(`App successfully started on port ${APP_CONFIG.PORT}`);
     }
 }
 

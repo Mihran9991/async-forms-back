@@ -30,7 +30,7 @@ export class AuthService {
                 return user;
             })
             .then(async user => {
-                if (!AuthService.matchPasswords(dto.password, user.password)) {
+                if(!AuthService.matchPasswords(dto.password, user.password)) {
                     return Promise.reject("Passwords don't match");
                 }
                 return generateJWTToken(new TokenData(user.uuid));

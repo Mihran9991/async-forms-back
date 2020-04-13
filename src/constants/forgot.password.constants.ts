@@ -1,0 +1,1 @@
+export const FORGOT_CONFIRM_URL = "localhost:3000/forgot";
