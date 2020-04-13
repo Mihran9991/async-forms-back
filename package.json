@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "dev": "ts-node-dev --respawn --transpileOnly --require ./src/utils/config.ts ./src/app.ts",
+    "dev": "ts-node-dev --respawn --transpileOnly --require ./src/utils/config.ts --ignore-watch node_modules ./src/app.ts",
     "prod": "tsc && node ./build/app.js"
   },
   "repository": {
