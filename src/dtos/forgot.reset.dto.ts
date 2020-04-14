@@ -1,4 +1,4 @@
-export class ForgotConfirmDto {
+export class ForgotResetDto {
     public requestId: string;
     public newPassword: string;
 
@@ -8,4 +8,4 @@ export class ForgotConfirmDto {
     }
 }
 
-export default ForgotConfirmDto;
+export default ForgotResetDto;

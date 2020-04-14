@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt';
-import { UserService } from "./user.service";
+import UserService from "./user.service";
 import { generateJWTToken } from "../utils/token.utils";
 import RegistrationDto from '../dtos/registration.dto';
 import LoginDto from '../dtos/login.dto';
 import TokenData from '../daos/jwt.token';
 
 export class AuthService {
-    private userService: UserService;
+    private readonly userService: UserService;
 
     public constructor(userService: UserService) {
         this.userService = userService;
@@ -24,12 +24,11 @@ export class AuthService {
     public async login(dto: LoginDto): Promise<string> {
         return this.userService.findByEmail(dto.email)
             .then(user => {
-                if (!user) {
+                if(!user) {
                     return Promise.reject("User with email: " + dto.email + " not found");
                 }
                 return user;
-            })
-            .then(async user => {
+            }).then(async user => {
                 if(!AuthService.matchPasswords(dto.password, user.password)) {
                     return Promise.reject("Passwords don't match");
                 }

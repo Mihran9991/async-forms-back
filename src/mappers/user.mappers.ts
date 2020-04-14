@@ -9,13 +9,3 @@ export function fromEntityToDto(user: User): UserDto {
         user.email
     );
 }
-
-export function fromDtoToEntity(dto: UserDto): User {
-    const user = new User();
-    user.name = dto.name;
-    user.surname = dto.surname;
-    user.email = dto.email;
-    return user;
-}
-
-export default { fromEntityToDto, fromDtoToEntity };

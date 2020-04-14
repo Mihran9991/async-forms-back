@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 import User from "../entities/user";
 import { INVALID_TOKEN } from "../constants/error.messages";
 
-export default async (req: Request, res:Response, next: Function) => {
+export default async(req: Request, res: Response, next: Function) => {
     try {
         const header: string = req.headers.authorization || "";
         const token: string = extractToken(header);
@@ -13,7 +13,7 @@ export default async (req: Request, res:Response, next: Function) => {
         const userService: UserService = res.locals.userService as UserService;
         const user: Nullable<User> = await userService.findByUUID(tokenData.userId);
         if(!user) {
-            throw INVALID_TOKEN;
+            next(new Error(INVALID_TOKEN));
         }
         next();
     } catch(err) {

@@ -1,62 +1,78 @@
-import UserService from "./user.service";
 import ForgotSendDto from "../dtos/forgot.send.dto";
-import ForgotConfirmDto from "../dtos/forgot.confirm.dto";
+import ForgotResetDto from "../dtos/forgot.reset.dto";
 import EmailService from "./email.service";
 import EmailDto from "../dtos/email.dto";
-import { FORGOT_CONFIRM_URL } from "../constants/forgot.password.constants";
-import ForgotRequestRepository from "../repositories/forgot.request.repository";
-import { Nullable } from "../types/main.types";
+import {
+    FORGOT_REQUEST_EXPIRE_TIME_MSC,
+    FORGOT_RESET_TEXT,
+    FORGOT_RESET_URL
+} from "../constants/forgot.password.constants";
+import ForgotRequestService from "./forgot.request.service";
+import UserService from "./user.service";
 import ForgotRequest from "../entities/forgot.request";
-import { generateUUID } from "../utils/uuid.utils";
+
 
 export class ForgotPasswordService {
-    private repository: ForgotRequestRepository;
+    private forgotRequestService: ForgotRequestService;
     private userService: UserService;
     private mailService: EmailService;
 
-    public constructor(repository: ForgotRequestRepository,
+    public constructor(forgotRequestService: ForgotRequestService,
                        userService: UserService,
                        mailService: EmailService) {
-        this.repository = repository;
+        this.forgotRequestService = forgotRequestService;
         this.userService = userService;
         this.mailService = mailService;
     }
 
-    public async send(dto: ForgotSendDto) {
-        this.create(dto).then(forgotRequest => {
-            if(!forgotRequest) {
-                return Promise.reject(`Unable to create forgot password request for user with email: ${dto.email}`);
-            }
-            this.sendEmail(dto.email, forgotRequest.uuid);
-            return Promise.resolve();
-        })
+    // TODO: implement some protection of DDoS attacks
+
+    // TODO: should be the host and port of front-end
+    private static createResetUrl(requestId: string): string {
+        return `${FORGOT_RESET_URL}?requestId=${requestId}`;
     }
 
-    public confirm(dto: ForgotConfirmDto) {
-        // todo: implement
+    private static checkRequestExpired(request: ForgotRequest): boolean {
+        const created = (request.createdAt as Date);
+        return new Date().valueOf() - created.valueOf() < FORGOT_REQUEST_EXPIRE_TIME_MSC;
     }
 
-    // todo: move to separate forgot.request.service file.ts
-    public async create(dto: ForgotSendDto): Promise<Nullable<ForgotRequest>> {
-        return await this.userService.findByEmail(dto.email)
-            .then(async user => {
-                if(!user) {
-                    return Promise.reject(`User with email: ${dto.email} not found`)
+    /* TODO: whenever a request for some user exists in database,
+    *   instead of creating a new one on every send request */
+    public async send(dto: ForgotSendDto): Promise<string> {
+        return this.forgotRequestService.create(dto)
+            .then(async request => {
+                if(!request) {
+                    return Promise.reject(`Unable to create forgot password request for user with email: ${dto.email}`);
                 }
-                const forgotRequest = new ForgotRequest();
-                forgotRequest.uuid = generateUUID();
-                forgotRequest.user = user;
-                return this.repository.create(forgotRequest)
-                    .catch(err => Promise.reject(err));
-            }).catch(err => Promise.reject(err));
+                await this.sendEmail(dto.email, request.uuid)
+                    .catch(_ => Promise.reject("Unable to send email"));
+            }).then(() => `A confirmation email was sent to: ${dto.email}`);
     }
 
-    private sendEmail(email: string, requestId: string): string {
+    public async reset(dto: ForgotResetDto): Promise<string> {
+        return this.forgotRequestService.findByUUID(dto.requestId)
+            .then(async request => {
+                if(!request) {
+                    return Promise.reject("Request not found");
+                }
+                if(!ForgotPasswordService.checkRequestExpired(request)) {
+                    await this.forgotRequestService.deleteByUUID(dto.requestId);
+                    return Promise.reject("Expired request");
+                }
+                await this.userService.updatePassword(request.userId, dto.newPassword)
+                    .then(() => this.forgotRequestService.deleteByUUID(dto.requestId))
+                    .catch(err => Promise.reject(err));
+                return "Password reset successfully";
+            });
+    }
+
+    private async sendEmail(email: string, requestId: string): Promise<any> {
         const dto = new EmailDto();
-        const url = `${FORGOT_CONFIRM_URL}?requestId=${requestId}`;
+        const url = ForgotPasswordService.createResetUrl(requestId);
         dto.to = email;
         dto.subject = "Forgot password request";
-        dto.text = `Follow this url, to reset your password: ${url}`;
+        dto.html = `<b><a href="${url}">${FORGOT_RESET_TEXT}</a></b>`;
         return this.mailService.send(dto);
     }
 }
