@@ -15,10 +15,9 @@ export async function sendRouter(req: Request, res: Response, service: ForgotPas
     return service.send(dto)
         .then(message =>
             res.status(200).json({ message: message })
-        ).catch(err => {
-            console.log(err);
+        ).catch(err =>
             res.status(400).json({ error: err })
-        });
+        );
 }
 
 export async function resetRouter(req: Request, res: Response, service: ForgotPasswordService) {
