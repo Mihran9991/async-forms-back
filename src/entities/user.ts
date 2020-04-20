@@ -1,4 +1,10 @@
-import { Column, HasMany, Model, PrimaryKey, Table, } from "sequelize-typescript";
+import {
+  Column,
+  HasMany,
+  Model,
+  PrimaryKey,
+  Table,
+} from "sequelize-typescript";
 import ForgotRequest from "./forgot.request";
 
 @Table({

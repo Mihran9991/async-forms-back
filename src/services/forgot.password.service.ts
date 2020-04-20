@@ -34,11 +34,10 @@ export class ForgotPasswordService {
             `Unable to create forgot password request for user with email: ${dto.email}`
           );
         }
-        return this.sendEmail(dto.email, request.uuid).catch((_) =>
-          Promise.reject("Unable to send email")
-        );
+        return this.sendEmail(dto.email, request.uuid);
       })
-      .then(() => `A confirmation email was sent to: ${dto.email}`);
+      .then(() => `A confirmation email was sent to: ${dto.email}`)
+      .catch((_) => Promise.reject("Unable to send email"));
   }
 
   public reset(dto: ForgotResetDto): Promise<string> {
