@@ -6,6 +6,8 @@ URL Mappings
 Register: /register
 Login: /login
 Get all users: /user/getAll
+Forgot password send: /forgot/send
+Forgot password reset: /forgot/reset
 
 ---
 
@@ -17,13 +19,13 @@ To install dependencies use:
 npm install
 
 ```
-To run ther server in development mode:
+To run the server in development mode:
 
 ```
 npm run dev
 
 ```
-To run ther server in production mode:
+To run the server in production mode:
 
 ```
 npm run prod

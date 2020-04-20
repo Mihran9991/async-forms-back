@@ -1,5 +1,5 @@
-import uuid from 'uuid';
+import uuid from "uuid";
 
 export function generateUUID() {
-    return uuid();
+  return uuid();
 }

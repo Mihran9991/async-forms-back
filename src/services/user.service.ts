@@ -1,41 +1,61 @@
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import UserRepository from "../repositories/user.repository";
+import RegistrationDto from "../dtos/registration.dto";
+import User from "../entities/user";
+import { Nullable } from "../types/main.types";
 import { generateUUID } from "../utils/uuid.utils";
-import RegistrationDto from '../dtos/registration.dto';
-import User from '../entities/user';
-import { Nullable } from '../types/main.types';
 
 export class UserService {
-    private userRepository: UserRepository;
+  private userRepository: UserRepository;
 
-    public constructor(userRepository: UserRepository) {
-        this.userRepository = userRepository;
-    }
+  public constructor(userRepository: UserRepository) {
+    this.userRepository = userRepository;
+  }
 
-    public async findAll(): Promise<User[]> {
-        return this.userRepository.findAll();
-    }
+  public findAll(): Promise<User[]> {
+    return this.userRepository.findAll();
+  }
 
-    public async findByUUID(uuid: string): Promise<Nullable<User>> {
-        return this.userRepository.findByUUID(uuid);
-    }
+  public findByUUID(uuid: string): Promise<Nullable<User>> {
+    return this.userRepository.findByUUID(uuid);
+  }
 
-    public async findByEmail(email: string): Promise<Nullable<User>> {
-        return this.userRepository.findByEmail(email);
-    }
+  public findByEmail(email: string): Promise<Nullable<User>> {
+    return this.userRepository.findByEmail(email);
+  }
 
-    public async create(dto: RegistrationDto): Promise<Nullable<User>> {
+  public create(dto: RegistrationDto): Promise<Nullable<User>> {
+    return UserService.hashPassword(dto.password)
+      .then((password) => {
         const user = new User();
         user.uuid = generateUUID();
         user.name = dto.name;
         user.surname = dto.surname;
         user.email = dto.email;
-        user.password = await bcrypt.genSalt()
-            .then(async salt =>
-                bcrypt.hash(dto.password, salt));
-        return this.userRepository.create(user)
-            .catch(err => Promise.reject(err));
-    }
+        user.password = password;
+        return this.userRepository.create(user);
+      })
+      .catch((err) => Promise.reject(err));
+  }
+
+  public updatePassword(uuid: string, password: string): Promise<User> {
+    return this.findByUUID(uuid)
+      .then((user) => {
+        if (!user) {
+          return Promise.reject(`User with uuid: ${uuid} not found`);
+        }
+        return Promise.all([user, UserService.hashPassword(password)]);
+      })
+      .then((values) => {
+        const user: User = values[0];
+        user.password = values[1];
+        return user.save();
+      });
+  }
+
+  private static hashPassword(password: string): Promise<string> {
+    return bcrypt.genSalt().then((salt) => bcrypt.hash(password, salt));
+  }
 }
 
 export default UserService;
