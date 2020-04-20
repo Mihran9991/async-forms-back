@@ -8,9 +8,9 @@ export const USERNAME: ConfigType = process.env.SEQ_USERNAME;
 export const PASSWORD: ConfigType = process.env.SEQ_PASSWORD;
 
 export default {
-    HOST,
-    DIALECT,
-    DATABASE,
-    USERNAME,
-    PASSWORD
+  HOST,
+  DIALECT,
+  DATABASE,
+  USERNAME,
+  PASSWORD,
 };
