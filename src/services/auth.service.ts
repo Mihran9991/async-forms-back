@@ -12,7 +12,7 @@ export class AuthService {
         this.userService = userService;
     }
 
-    public async register(dto: RegistrationDto): Promise<string> {
+    public register(dto: RegistrationDto): Promise<string> {
         return this.userService.create(dto)
             .then(() => "User registered successfully");
     }
@@ -21,14 +21,14 @@ export class AuthService {
         return bcrypt.compareSync(password1, password2);
     }
 
-    public async login(dto: LoginDto): Promise<string> {
+    public login(dto: LoginDto): Promise<string> {
         return this.userService.findByEmail(dto.email)
             .then(user => {
                 if(!user) {
                     return Promise.reject("User with email: " + dto.email + " not found");
                 }
                 return user;
-            }).then(async user => {
+            }).then(user => {
                 if(!AuthService.matchPasswords(dto.password, user.password)) {
                     return Promise.reject("Passwords don't match");
                 }

@@ -5,15 +5,15 @@ import { Nullable } from '../types/main.types';
 export class UserRepository {
     private repository: Repository<User>;
 
-    constructor(repository: Repository<User>) { 
+    constructor(repository: Repository<User>) {
         this.repository = repository;
     }
 
-    public async findAll(): Promise<User[]> {
+    public findAll(): Promise<User[]> {
         return this.repository.findAll();
     }
 
-    public async findByUUID(uuid: string): Promise<Nullable<User>> {
+    public findByUUID(uuid: string): Promise<Nullable<User>> {
         return this.repository.findOne({
             where: {
                 uuid: uuid
@@ -21,7 +21,7 @@ export class UserRepository {
         });
     }
 
-    public async findByEmail(email: string): Promise<Nullable<User>> {
+    public findByEmail(email: string): Promise<Nullable<User>> {
         return this.repository.findOne({
             where: {
                 email: email
@@ -29,7 +29,7 @@ export class UserRepository {
         });
     }
 
-    public async create(user: User): Promise<User> {
+    public create(user: User): Promise<User> {
         return user.save();
     }
 }

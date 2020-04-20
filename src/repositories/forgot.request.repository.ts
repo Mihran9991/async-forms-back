@@ -9,7 +9,7 @@ export class ForgotRequestRepository {
         this.repository = repository;
     }
 
-    public async findByUUID(uuid: string): Promise<Nullable<ForgotRequest>> {
+    public findByUUID(uuid: string): Promise<Nullable<ForgotRequest>> {
         return this.repository.findOne({
             where: {
                 uuid: uuid
@@ -17,7 +17,7 @@ export class ForgotRequestRepository {
         });
     }
 
-    public async create(forgotRequest: ForgotRequest): Promise<Nullable<ForgotRequest>> {
+    public create(forgotRequest: ForgotRequest): Promise<Nullable<ForgotRequest>> {
         return forgotRequest.save();
     }
 }

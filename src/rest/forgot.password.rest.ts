@@ -4,7 +4,7 @@ import { validationResult } from "express-validator";
 import ForgotSendDto from "../dtos/forgot.send.dto";
 import ForgotResetDto from "../dtos/forgot.reset.dto";
 
-export async function sendRouter(req: Request, res: Response, service: ForgotPasswordService) {
+export function sendRouter(req: Request, res: Response, service: ForgotPasswordService) {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -20,7 +20,7 @@ export async function sendRouter(req: Request, res: Response, service: ForgotPas
         );
 }
 
-export async function resetRouter(req: Request, res: Response, service: ForgotPasswordService) {
+export function resetRouter(req: Request, res: Response, service: ForgotPasswordService) {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -36,3 +36,8 @@ export async function resetRouter(req: Request, res: Response, service: ForgotPa
             res.status(400).json({ error: err })
         );
 }
+
+export default {
+    sendRouter,
+    resetRouter
+};

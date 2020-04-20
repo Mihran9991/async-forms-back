@@ -9,13 +9,13 @@ import User from "./entities/user";
 import UserRepository from './repositories/user.repository';
 import UserService from './services/user.service';
 import AuthService from './services/auth.service';
-import * as APP_CONFIG from "./constants/app.constants";
-import * as DB_CONFIG from "./constants/db.constants";
+import DbConfig from "./configs/db.config";
 import ForgotRequest from "./entities/forgot.request";
 import ForgotPasswordService from "./services/forgot.password.service";
 import ForgotRequestService from "./services/forgot.request.service";
 import ForgotRequestRepository from "./repositories/forgot.request.repository";
 import EmailService from "./services/email.service";
+import AppConfig from "./configs/app.config";
 
 const router = express.Router();
 
@@ -56,11 +56,11 @@ class App {
     public initSequelize() {
         console.log("Initiating sequelize...");
         this.sequelize = new Sequelize({
-            host: DB_CONFIG.HOST,
-            dialect: DB_CONFIG.DIALECT,
-            username: DB_CONFIG.USERNAME,
-            password: DB_CONFIG.PASSWORD,
-            database: DB_CONFIG.DATABASE,
+            host: DbConfig.HOST,
+            dialect: DbConfig.DIALECT,
+            username: DbConfig.USERNAME,
+            password: DbConfig.PASSWORD,
+            database: DbConfig.DATABASE,
         });
         this.sequelize.addModels([User, ForgotRequest]);
         this.sequelize.sync();
@@ -95,13 +95,13 @@ class App {
     }
 
     public async start() {
-        console.log(`Initiating server, starting app on port ${APP_CONFIG.PORT}...`);
-        this.server = this.app.listen(APP_CONFIG.PORT);
+        console.log(`Initiating server, starting app on port ${AppConfig.PORT}...`);
+        this.server = this.app.listen(AppConfig.PORT);
         console.log(`Server initiated successfully`);
         console.log(`Connecting sequelize to server...`);
         await SocketIO.getInstance().connect(this.server);
         console.log("Sequelize connected successfully");
-        console.log(`App successfully started on port ${APP_CONFIG.PORT}`);
+        console.log(`App successfully started on port ${AppConfig.PORT}`);
     }
 }
 

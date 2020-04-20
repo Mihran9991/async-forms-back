@@ -4,7 +4,7 @@ import AuthService from "../services/auth.service";
 import LoginDto from '../dtos/login.dto';
 import RegistrationDto from '../dtos/registration.dto';
 
-export async function registerRouter(req: Request, res: Response, service: AuthService) {
+export function registerRouter(req: Request, res: Response, service: AuthService) {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -23,7 +23,7 @@ export async function registerRouter(req: Request, res: Response, service: AuthS
         );
 }
 
-export async function loginRouter(req: Request, res: Response, service: AuthService) {
+export function loginRouter(req: Request, res: Response, service: AuthService) {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -39,3 +39,8 @@ export async function loginRouter(req: Request, res: Response, service: AuthServ
             res.status(400).json({ error: err })
         );
 }
+
+export default {
+    registerRouter,
+    loginRouter
+};

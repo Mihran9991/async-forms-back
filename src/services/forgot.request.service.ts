@@ -15,13 +15,13 @@ export class ForgotRequestService {
         this.userService = userService;
     }
 
-    public async findByUUID(uuid: string): Promise<Nullable<ForgotRequest>> {
+    public findByUUID(uuid: string): Promise<Nullable<ForgotRequest>> {
         return this.repository.findByUUID(uuid);
     }
 
-    public async create(dto: ForgotSendDto): Promise<Nullable<ForgotRequest>> {
+    public create(dto: ForgotSendDto): Promise<Nullable<ForgotRequest>> {
         return this.userService.findByEmail(dto.email)
-            .then(async user => {
+            .then(user => {
                 if(!user) {
                     return Promise.reject(`User with email: ${dto.email} not found`)
                 }
@@ -33,13 +33,13 @@ export class ForgotRequestService {
             }).catch(err => Promise.reject(err));
     }
 
-    public async deleteByUUID(uuid: string): Promise<void> {
+    public deleteByUUID(uuid: string): Promise<void> {
         return this.findByUUID(uuid)
-            .then(async request => {
+            .then(request => {
                 if(!request) {
                     return Promise.reject(`Forgot request with uuid: ${uuid} not found`);
                 }
-                await request.destroy();
+                return request.destroy();
             });
     }
 }
