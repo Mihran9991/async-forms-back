@@ -6,6 +6,7 @@ import ForgotPasswordConstants from "../constants/forgot.password.constants";
 import ForgotRequestService from "./forgot.request.service";
 import UserService from "./user.service";
 import ForgotRequest from "../entities/forgot.request";
+import FrontEndConfig from "../configs/frontend.config";
 
 export class ForgotPasswordService {
   private forgotRequestService: ForgotRequestService;
@@ -73,9 +74,8 @@ export class ForgotPasswordService {
     return this.mailService.send(dto);
   }
 
-  // TODO: should be the host and port of front-end
   private static createResetUrl(requestId: string): string {
-    return `${ForgotPasswordConstants.FORGOT_RESET_URL}?requestId=${requestId}`;
+    return `${FrontEndConfig.HOST}:${FrontEndConfig.PORT}${FrontEndConfig.FORGOT_RESET_URL}?requestId=${requestId}`;
   }
 
   private static checkRequestExpired(request: ForgotRequest): boolean {
