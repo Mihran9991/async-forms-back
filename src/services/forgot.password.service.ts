@@ -37,7 +37,7 @@ export class ForgotPasswordService {
         return this.sendEmail(dto.email, request.uuid);
       })
       .then(() => `A confirmation email was sent to: ${dto.email}`)
-      .catch((_) => Promise.reject("Unable to send email"));
+      .catch(() => Promise.reject("Unable to send email"));
   }
 
   public reset(dto: ForgotResetDto): Promise<string> {
