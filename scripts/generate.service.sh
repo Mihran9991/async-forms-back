@@ -7,7 +7,9 @@ import ${file_name_prefix^} from '../entities/${file_name_prefix,,}.entity';
 export class ${file_name_prefix^}Service {
   private ${file_name_prefix,,}Repository: ${file_name_prefix^}Repository;
 
-  public constructor() {}
+  public constructor(${file_name_prefix,,}Repository: ${file_name_prefix^}Repository) {
+     this.${file_name_prefix,,}Repository = ${file_name_prefix,,}Repository;
+  }
 }
 
 export default ${file_name_prefix^}Service;

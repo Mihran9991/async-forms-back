@@ -6,18 +6,25 @@ import cors from "cors";
 
 import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
+import FormRouter from "./routers/form.router";
 import ForgotPasswordRouter from "./routers/forgot.password.router";
-import User from "./entities/user.entity";
+
 import UserRepository from "./repositories/user.repository";
+import FormRepository from "./repositories/form.repository";
+import ForgotRequestRepository from "./repositories/forgot.request.repository";
+
 import UserService from "./services/user.service";
 import AuthService from "./services/auth.service";
-import DbConfig from "./configs/db.config";
-import ForgotRequest from "./entities/forgot.request.entity";
-import ForgotPasswordService from "./services/forgot.password.service";
-import ForgotRequestService from "./services/forgot.request.service";
-import ForgotRequestRepository from "./repositories/forgot.request.repository";
 import EmailService from "./services/email.service";
+import ForgotRequestService from "./services/forgot.request.service";
+import ForgotPasswordService from "./services/forgot.password.service";
+import FormService from "./services/form.service";
+
+import User from "./entities/user.entity";
+import ForgotRequest from "./entities/forgot.request.entity";
+
 import AppConfig from "./configs/app.config";
+import DbConfig from "./configs/db.config";
 
 const router = express.Router();
 
@@ -25,16 +32,22 @@ class App {
   private app: express.Application;
   private server: any;
   private sequelize: Sequelize;
+
   private authRouter: AuthRouter;
   private userRouter: UserRouter;
   private forgotPasswordRouter: ForgotPasswordRouter;
+  private formRouter: FormRouter;
+
   private authService: AuthService;
   private emailService: EmailService;
   private forgotPasswordService: ForgotPasswordService;
   private userService: UserService;
   private forgotRequestService: ForgotRequestService;
+  private formService: FormService;
+
   private userRepository: UserRepository;
   private forgotRequestRepository: ForgotRequestRepository;
+  private formRepository: FormRepository;
 
   constructor() {
     this.initApp();
@@ -81,6 +94,8 @@ class App {
     this.emailService = new EmailService();
     this.userService = new UserService(this.userRepository);
     this.authService = new AuthService(this.userService);
+    this.formService = new FormService(this.formRepository);
+
     this.forgotRequestService = new ForgotRequestService(
       this.forgotRequestRepository,
       this.userService
@@ -97,6 +112,8 @@ class App {
     console.log("Initiating routers...");
     this.authRouter = new AuthRouter(router, this.authService);
     this.userRouter = new UserRouter(router, this.userService);
+    this.formRouter = new FormRouter(router, this.formService);
+
     this.forgotPasswordRouter = new ForgotPasswordRouter(
       router,
       this.forgotPasswordService

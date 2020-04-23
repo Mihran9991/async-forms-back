@@ -14,4 +14,6 @@ export class ${file_name_prefix^}Router {
     });
   }
 }
-" >> ../src/routes/${file_name_prefix,,}.router.ts
+
+export default ${file_name_prefix^}Router;
+" >> ../src/routers/${file_name_prefix,,}.router.ts

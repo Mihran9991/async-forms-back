@@ -10,4 +10,6 @@ export class ${file_name_prefix^}Repository {
     this.repository = repository;
   }
 }
+
+export default ${file_name_prefix^}Repository;
 " >> ../src/repositories/${file_name_prefix,,}.repository.ts
