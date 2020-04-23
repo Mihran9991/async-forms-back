@@ -1,5 +1,5 @@
 import { Repository } from "sequelize-typescript";
-import User from "../entities/user";
+import User from "../entities/user.entity";
 import { Nullable } from "../types/main.types";
 
 export class UserRepository {

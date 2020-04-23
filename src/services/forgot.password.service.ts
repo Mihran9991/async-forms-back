@@ -5,7 +5,7 @@ import EmailDto from "../dtos/email.dto";
 import ForgotPasswordConstants from "../constants/forgot.password.constants";
 import ForgotRequestService from "./forgot.request.service";
 import UserService from "./user.service";
-import ForgotRequest from "../entities/forgot.request";
+import ForgotRequest from "../entities/forgot.request.entity";
 import FrontEndConfig from "../configs/frontend.config";
 
 export class ForgotPasswordService {

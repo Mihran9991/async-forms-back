@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import UserRepository from "../repositories/user.repository";
 import RegistrationDto from "../dtos/registration.dto";
-import User from "../entities/user";
+import User from "../entities/user.entity";
 import { Nullable } from "../types/main.types";
 import { generateUUID } from "../utils/uuid.utils";
 

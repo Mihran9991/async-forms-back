@@ -2,15 +2,17 @@ import express from "express";
 import SocketIO from "./services/socket.service";
 import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
+import cors from "cors";
+
 import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
 import ForgotPasswordRouter from "./routers/forgot.password.router";
-import User from "./entities/user";
+import User from "./entities/user.entity";
 import UserRepository from "./repositories/user.repository";
 import UserService from "./services/user.service";
 import AuthService from "./services/auth.service";
 import DbConfig from "./configs/db.config";
-import ForgotRequest from "./entities/forgot.request";
+import ForgotRequest from "./entities/forgot.request.entity";
 import ForgotPasswordService from "./services/forgot.password.service";
 import ForgotRequestService from "./services/forgot.request.service";
 import ForgotRequestRepository from "./repositories/forgot.request.repository";
@@ -46,14 +48,7 @@ class App {
     this.app = express();
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: false }));
-    this.app.use(function (req, res, next) {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
-      );
-      next();
-    });
+    this.app.use(cors());
   }
 
   public initSequelize() {
