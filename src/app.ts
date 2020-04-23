@@ -1,5 +1,5 @@
 import express from "express";
-import SocketIO from "./services/socketIo";
+import SocketIO from "./services/socket.service";
 import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
 import AuthRouter from "./routers/auth.router";

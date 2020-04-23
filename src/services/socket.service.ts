@@ -1,6 +1,6 @@
 import socketIO from "socket.io";
 import express from "express";
-import SocketConstants from "../constants/socketEvents";
+import SocketConstants from "../constants/socket.events.constants";
 
 class SocketIOWrapper {
   private static instance: SocketIOWrapper;
