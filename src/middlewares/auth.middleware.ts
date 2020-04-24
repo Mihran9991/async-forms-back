@@ -3,6 +3,7 @@ import UserService from "../services/user.service";
 import { GeneratedTokenType } from "../types/main.types";
 import { Request, Response } from "express";
 import ErrorMessages from "../constants/error.messages";
+import UserMappers from "../mappers/user.mappers";
 
 export default (req: Request, res: Response, next: Function) => {
   try {
@@ -14,6 +15,7 @@ export default (req: Request, res: Response, next: Function) => {
       if (!user) {
         throw ErrorMessages.INVALID_TOKEN;
       }
+      res.locals.userPrincipal = UserMappers.fromEntityToPrincipal(user);
       return next();
     });
   } catch (_) {

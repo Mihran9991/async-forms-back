@@ -24,6 +24,8 @@ export class User extends Model {
   email: string;
   @Column({ allowNull: false })
   password: string;
+  @Column
+  pictureUrl: string;
   @HasMany(() => ForgotRequest)
   forgotRequests: ForgotRequest[];
 }

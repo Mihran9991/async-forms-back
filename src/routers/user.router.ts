@@ -14,6 +14,9 @@ export class UserRouter {
       [authMiddleware],
       (req: Request, res: Response) => UserRest.getAllRouter(req, res, service)
     );
+    router.get("/user/get", [authMiddleware], (req: Request, res: Response) =>
+      UserRest.getRouter(req, res)
+    );
   }
 }
 

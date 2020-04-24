@@ -1,7 +1,4 @@
-import {
-  Model,
-  Table,
-} from "sequelize-typescript";
+import { Model, Table } from "sequelize-typescript";
 
 @Table({
   modelName: "Form",
