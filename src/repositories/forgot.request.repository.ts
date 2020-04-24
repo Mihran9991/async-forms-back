@@ -1,5 +1,5 @@
 import { Repository } from "sequelize-typescript";
-import ForgotRequest from "../entities/forgot.request";
+import ForgotRequest from "../entities/forgot.request.entity";
 import { Nullable } from "../types/main.types";
 
 export class ForgotRequestRepository {

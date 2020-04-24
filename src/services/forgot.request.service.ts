@@ -1,6 +1,6 @@
 import ForgotSendDto from "../dtos/forgot.send.dto";
 import { Nullable } from "../types/main.types";
-import ForgotRequest from "../entities/forgot.request";
+import ForgotRequest from "../entities/forgot.request.entity";
 import { generateUUID } from "../utils/uuid.utils";
 import UserService from "./user.service";
 import ForgotRequestRepository from "../repositories/forgot.request.repository";

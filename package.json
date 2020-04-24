@@ -31,6 +31,7 @@
     "bcrypt": "3.0.7",
     "body-parser": "1.19.0",
     "bufferutil": "^4.0.1",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "6.3.0",
@@ -47,6 +48,7 @@
     "uuid": "3.3.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.6",
     "husky": "^3.0.9",
     "prettier": "2.0.4",
     "tslint": "^5.20.1"

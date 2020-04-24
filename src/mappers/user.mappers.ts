@@ -1,4 +1,4 @@
-import User from "../entities/user";
+import User from "../entities/user.entity";
 import UserDto from "../dtos/user.dto";
 
 export function fromEntityToDto(user: User): UserDto {

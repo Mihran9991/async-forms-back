@@ -6,7 +6,7 @@ import {
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
-import User from "./user";
+import User from "./user.entity";
 
 @Table({
   modelName: "ForgotRequest",
