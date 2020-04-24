@@ -3,6 +3,7 @@ import SocketIO from "./services/socket.service";
 import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
 import cors from "cors";
+import morgan from "morgan";
 
 import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
@@ -62,6 +63,7 @@ class App {
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(cors());
+    this.app.use(morgan("combined"));
   }
 
   public initSequelize() {
