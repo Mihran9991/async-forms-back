@@ -9,7 +9,7 @@ export class FormRouter {
       res.locals.FormService = service;
       next();
     });
-    router.post("/create", [], (req: Request, res: Response) =>
+    router.post("/form/create", [], (req: Request, res: Response) =>
       FormRest.createRouter(req, res, service)
     );
   }
