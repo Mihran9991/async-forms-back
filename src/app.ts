@@ -26,6 +26,7 @@ import ForgotRequest from "./entities/forgot.request.entity";
 
 import AppConfig from "./configs/app.config";
 import DbConfig from "./configs/db.config";
+import Form from "./entities/form.entity";
 
 const router = express.Router();
 
@@ -75,7 +76,7 @@ class App {
       password: DbConfig.PASSWORD,
       database: DbConfig.DATABASE,
     });
-    this.sequelize.addModels([User, ForgotRequest]);
+    this.sequelize.addModels([User, ForgotRequest, Form]);
     this.sequelize.sync();
     console.log("Sequelize initiated successfully");
   }
@@ -88,6 +89,9 @@ class App {
     this.forgotRequestRepository = new ForgotRequestRepository(
       this.sequelize.getRepository(ForgotRequest)
     );
+    this.formRepository = new FormRepository(
+      this.sequelize.getRepository(Form)
+    );
     console.log("Repositories initiated successfully");
   }
 
@@ -97,7 +101,6 @@ class App {
     this.userService = new UserService(this.userRepository);
     this.authService = new AuthService(this.userService);
     this.formService = new FormService(this.formRepository);
-
     this.forgotRequestService = new ForgotRequestService(
       this.forgotRequestRepository,
       this.userService
@@ -115,7 +118,6 @@ class App {
     this.authRouter = new AuthRouter(router, this.authService);
     this.userRouter = new UserRouter(router, this.userService);
     this.formRouter = new FormRouter(router, this.formService);
-
     this.forgotPasswordRouter = new ForgotPasswordRouter(
       router,
       this.forgotPasswordService
