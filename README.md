@@ -3,12 +3,13 @@
 # About
 URL Mappings
 
-Register: /register
-Login: /login
-Get all users: /user/getAll
-Forgot password send: /forgot/send
-Forgot password reset: /forgot/reset
-
+- Register: /register
+- Login: /login
+- Get all users: /user/getAll
+- Get user: /user/get
+- Edit user info: /user/edit
+- Forgot password send: /forgot/send
+- Forgot password reset: /forgot/reset
 ---
 
 ## Quick Start

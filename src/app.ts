@@ -4,6 +4,7 @@ import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";
+import cloudinary from "cloudinary";
 
 import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
@@ -20,13 +21,15 @@ import EmailService from "./services/email.service";
 import ForgotRequestService from "./services/forgot.request.service";
 import ForgotPasswordService from "./services/forgot.password.service";
 import FormService from "./services/form.service";
+import CloudService from "./services/cloud.service";
 
 import User from "./entities/user.entity";
 import ForgotRequest from "./entities/forgot.request.entity";
+import Form from "./entities/form.entity";
 
 import AppConfig from "./configs/app.config";
 import DbConfig from "./configs/db.config";
-import Form from "./entities/form.entity";
+import CloudConfig from "./configs/cloud.config";
 
 const router = express.Router();
 
@@ -46,6 +49,7 @@ class App {
   private userService: UserService;
   private forgotRequestService: ForgotRequestService;
   private formService: FormService;
+  private cloudService: CloudService;
 
   private userRepository: UserRepository;
   private forgotRequestRepository: ForgotRequestRepository;
@@ -53,6 +57,7 @@ class App {
 
   constructor() {
     this.initApp();
+    this.initCloudinary();
     this.initSequelize();
     this.initRepos();
     this.initServices();
@@ -65,6 +70,14 @@ class App {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(cors());
     this.app.use(morgan("combined"));
+  }
+
+  public initCloudinary() {
+    cloudinary.v2.config({
+      cloud_name: CloudConfig.CLOUD_NAME,
+      api_key: CloudConfig.API_KEY,
+      api_secret: CloudConfig.API_SECRET,
+    });
   }
 
   public initSequelize() {
@@ -98,7 +111,8 @@ class App {
   public initServices() {
     console.log("Initiating services...");
     this.emailService = new EmailService();
-    this.userService = new UserService(this.userRepository);
+    this.cloudService = new CloudService();
+    this.userService = new UserService(this.userRepository, this.cloudService);
     this.authService = new AuthService(this.userService);
     this.formService = new FormService(this.formRepository);
     this.forgotRequestService = new ForgotRequestService(
