@@ -1,6 +1,5 @@
 import FormRepository from "../repositories/form.repository";
 import FormDto from "../dtos/form.dto";
-import Form from "../entities/form.entity";
 
 export class FormService {
   private formRepository: FormRepository;

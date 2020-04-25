@@ -1,4 +1,4 @@
-import { FormRows, FormColumns } from "../types/main.types";
+import { FormColumns, FormRows } from "../types/main.types";
 
 export class FormDto {
   public title: string;

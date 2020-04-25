@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+
 import UserRepository from "../repositories/user.repository";
 import RegistrationDto from "../dtos/registration.dto";
 import User from "../entities/user.entity";
@@ -36,6 +37,25 @@ export class UserService {
         return this.userRepository.create(user);
       })
       .catch((err) => Promise.reject(err));
+  }
+
+  public update(
+    uuid: string,
+    name: string,
+    surname: string,
+    pictureUrl: Nullable<string> = null
+  ) {
+    return this.findByUUID(uuid).then((user: Nullable<User>) => {
+      if (!user) {
+        return Promise.reject(`User with uuid: ${uuid} not found`);
+      }
+      user.name = name;
+      user.surname = surname;
+      if (pictureUrl) {
+        user.pictureUrl = pictureUrl;
+      }
+      return user.save();
+    });
   }
 
   public updatePassword(uuid: string, password: string): Promise<User> {
