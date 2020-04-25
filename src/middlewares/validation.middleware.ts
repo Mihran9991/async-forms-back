@@ -6,8 +6,8 @@ import multerMiddleware from "./multer.middleware";
 
 export const registerForm = () => {
   return [
-    check("name").isLength({ min: 1 }),
-    check("surname").isLength({ min: 1 }),
+    check("name").notEmpty({ ignore_whitespace: true }),
+    check("surname").notEmpty({ ignore_whitespace: true }),
     check("email").isEmail(),
     check("password").matches(RegexConstants.PASSWORD_REGEX),
   ];
@@ -26,16 +26,16 @@ export const forgotSendForm = () => {
 
 export const forgotResetForm = () => {
   return [
-    check("requestId").isLength({ min: 1 }),
+    check("requestId").notEmpty({ ignore_whitespace: true }),
     check("newPassword").matches(RegexConstants.PASSWORD_REGEX),
   ];
 };
 
 export const editProfileForm = () => {
   return [
-    check("name").isLength({ min: 1 }),
-    check("surname").isLength({ min: 1 }),
     multerMiddleware.singleOrNone("picture"),
+    check("name").notEmpty({ ignore_whitespace: true }),
+    check("surname").notEmpty({ ignore_whitespace: true }),
   ];
 };
 

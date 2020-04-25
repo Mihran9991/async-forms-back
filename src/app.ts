@@ -111,7 +111,8 @@ class App {
   public initServices() {
     console.log("Initiating services...");
     this.emailService = new EmailService();
-    this.userService = new UserService(this.userRepository);
+    this.cloudService = new CloudService();
+    this.userService = new UserService(this.userRepository, this.cloudService);
     this.authService = new AuthService(this.userService);
     this.formService = new FormService(this.formRepository);
     this.forgotRequestService = new ForgotRequestService(
@@ -123,18 +124,13 @@ class App {
       this.userService,
       this.emailService
     );
-    this.cloudService = new CloudService();
     console.log("Services initiated successfully");
   }
 
   public initRouters() {
     console.log("Initiating routers...");
     this.authRouter = new AuthRouter(router, this.authService);
-    this.userRouter = new UserRouter(
-      router,
-      this.userService,
-      this.cloudService
-    );
+    this.userRouter = new UserRouter(router, this.userService);
     this.formRouter = new FormRouter(router, this.formService);
     this.forgotPasswordRouter = new ForgotPasswordRouter(
       router,
