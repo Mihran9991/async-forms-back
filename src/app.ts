@@ -114,7 +114,6 @@ class App {
     this.cloudService = new CloudService();
     this.userService = new UserService(this.userRepository, this.cloudService);
     this.authService = new AuthService(this.userService);
-    this.formService = new FormService(this.formRepository);
     this.forgotRequestService = new ForgotRequestService(
       this.forgotRequestRepository,
       this.userService
@@ -123,6 +122,11 @@ class App {
       this.forgotRequestService,
       this.userService,
       this.emailService
+    );
+    this.formService = new FormService(
+      this.formRepository,
+      this.userService,
+      this.sequelize.getQueryInterface()
     );
     console.log("Services initiated successfully");
   }

@@ -6,6 +6,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import ForgotRequest from "./forgot.request.entity";
+import Form from "./form.entity";
 
 @Table({
   modelName: "User",
@@ -28,6 +29,8 @@ export class User extends Model {
   pictureUrl: string;
   @HasMany(() => ForgotRequest)
   forgotRequests: ForgotRequest[];
+  @HasMany(() => Form)
+  forms: Form[];
 }
 
 export default User;

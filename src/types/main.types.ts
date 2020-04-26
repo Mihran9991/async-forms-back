@@ -7,19 +7,20 @@ export interface TokenType {
   timestamp: number;
 }
 
-export interface FormColumn {
-  [key: string]: { type: string; uid: string };
+export interface Form {
+  name: string;
+  fields: FormField[];
+  style: Object;
+  optional: boolean;
 }
 
-export interface FormRow {
-  [key: string]: {
-    value: string | [{ key: string; value: string }];
-    type: string;
-  };
+export interface FormField {
+  name: string;
+  type: FormFieldType;
 }
 
-export interface FormColumns {
-  [key: string]: FormColumn;
+export interface FormFieldType {
+  name: string;
+  values: Nullable<string[]>;
+  fields: Nullable<FormField[]>;
 }
-
-export type FormRows = FormRow[];

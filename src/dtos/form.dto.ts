@@ -1,14 +1,12 @@
-import { FormColumns, FormRows } from "../types/main.types";
+import { Form } from "../types/main.types";
 
 export class FormDto {
-  public title: string;
-  public rows: FormRows;
-  public columns: FormColumns;
+  // TODO: instead of using Form interface,
+  // TODO: move it's attributes into this class
+  public form: Form;
 
-  public constructor(title: string, rows: FormRows, columns: FormColumns) {
-    this.title = title;
-    this.rows = rows;
-    this.columns = columns;
+  public constructor(form: Form) {
+    this.form = form;
   }
 }
 

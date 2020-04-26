@@ -1,4 +1,5 @@
 import { Repository } from "sequelize-typescript";
+
 import Form from "../entities/form.entity";
 
 export class FormRepository {
@@ -8,9 +9,12 @@ export class FormRepository {
     this.repository = repository;
   }
 
-  public create(form: Form): Promise<Form> {
-    return Promise.resolve(form);
-    //return form.save();
+  public getAllByOwner(uuid: string): Promise<Form[]> {
+    return this.repository.findAll({
+      where: {
+        ownerId: uuid,
+      },
+    });
   }
 }
 

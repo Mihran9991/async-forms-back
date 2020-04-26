@@ -1,10 +1,38 @@
-import { Model, Table } from "sequelize-typescript";
+import {
+  BelongsTo,
+  Column,
+  ForeignKey,
+  Model,
+  Table,
+} from "sequelize-typescript";
+import User from "./user.entity";
 
 @Table({
   modelName: "Form",
-  tableName: "form",
+  tableName: "forms",
   timestamps: true,
 })
-export class Form extends Model {}
+export class Form extends Model {
+  @Column({
+    autoIncrement: true,
+    primaryKey: true,
+  })
+  id: number;
+  @Column({
+    allowNull: false,
+    unique: true,
+  })
+  name: string;
+  @Column({
+    allowNull: false,
+    unique: true,
+  })
+  sysName: string;
+  @ForeignKey(() => User)
+  @Column({ allowNull: false })
+  ownerId: string;
+  @BelongsTo(() => User)
+  owner: User;
+}
 
 export default Form;
