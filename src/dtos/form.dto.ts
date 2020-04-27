@@ -1,12 +1,21 @@
-import { Form } from "../types/main.types";
+import { FormField } from "../types/main.types";
 
 export class FormDto {
-  // TODO: instead of using Form interface,
-  // TODO: move it's attributes into this class
-  public form: Form;
+  public name: string;
+  public values: FormField[];
+  public style: Object;
+  public optional: boolean;
 
-  public constructor(form: Form) {
-    this.form = form;
+  public constructor(
+    name: string,
+    values: FormField[],
+    style: Object,
+    optional: boolean
+  ) {
+    this.name = name;
+    this.values = values;
+    this.style = style;
+    this.optional = optional;
   }
 }
 

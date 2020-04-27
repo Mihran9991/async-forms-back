@@ -22,7 +22,12 @@ export function createRouter(
   service: FormService
 ) {
   const principal: UserPrincipal = res.locals.userPrincipal;
-  const formDto: FormDto = new FormDto(req.body.form);
+  const formDto: FormDto = new FormDto(
+    req.body.name,
+    req.body.values,
+    req.body.style,
+    req.body.optional
+  );
   return service
     .create(formDto, principal.uuid)
     .then(() => {

@@ -36,8 +36,8 @@ export class FormService {
           throw `User with uuid: ${ownerUUID} not found`;
         }
         const form: Form = new Form();
-        form.name = dto.form.name;
-        form.sysName = toUnderscoreCase(dto.form.name);
+        form.name = dto.name;
+        form.sysName = toUnderscoreCase(dto.name);
         form.owner = user;
         form.ownerId = user.uuid;
         return form.save();

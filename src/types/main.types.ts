@@ -7,13 +7,6 @@ export interface TokenType {
   timestamp: number;
 }
 
-export interface Form {
-  name: string;
-  fields: FormField[];
-  style: Object;
-  optional: boolean;
-}
-
 export interface FormField {
   name: string;
   type: FormFieldType;
