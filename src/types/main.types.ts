@@ -10,6 +10,8 @@ export interface TokenType {
 export interface FormField {
   name: string;
   type: FormFieldType;
+  style: string;
+  optional: boolean;
 }
 
 export interface FormFieldType {

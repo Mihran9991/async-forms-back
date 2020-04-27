@@ -11,7 +11,7 @@ import Form from "../entities/form.entity";
 import { toUnderscoreCase } from "../utils/string.utils";
 import User from "../entities/user.entity";
 import UserService from "./user.service";
-import { Nullable } from "../types/main.types";
+import { FormField, Nullable } from "../types/main.types";
 
 export class FormService {
   private repository: FormRepository;
@@ -43,7 +43,6 @@ export class FormService {
         return form.save();
       })
       .then((form: Form) => {
-        // create table for fields
         this.queryInterface
           .createTable(`${form.sysName}_fields`, {
             id: {
@@ -84,8 +83,17 @@ export class FormService {
             },
           })
           .then(() => {
-            // TODO: need to insert actual field data into
-            // TODO: this newly created table
+            dto.fields.forEach((field: FormField) => {
+              this.queryInterface.bulkInsert(`${form.sysName}_fields`, [
+                {
+                  formId: form.id,
+                  name: field.name,
+                  sysName: toUnderscoreCase(field.name),
+                  type: field.type.name,
+                  optional: field.optional,
+                },
+              ]);
+            });
           });
       });
   }

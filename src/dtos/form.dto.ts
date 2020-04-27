@@ -2,18 +2,18 @@ import { FormField } from "../types/main.types";
 
 export class FormDto {
   public name: string;
-  public values: FormField[];
+  public fields: FormField[];
   public style: Object;
   public optional: boolean;
 
   public constructor(
     name: string,
-    values: FormField[],
+    fields: FormField[],
     style: Object,
     optional: boolean
   ) {
     this.name = name;
-    this.values = values;
+    this.fields = fields;
     this.style = style;
     this.optional = optional;
   }

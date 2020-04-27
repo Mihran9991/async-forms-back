@@ -24,7 +24,7 @@ export function createRouter(
   const principal: UserPrincipal = res.locals.userPrincipal;
   const formDto: FormDto = new FormDto(
     req.body.name,
-    req.body.values,
+    req.body.fields,
     req.body.style,
     req.body.optional
   );
@@ -33,7 +33,10 @@ export function createRouter(
     .then(() => {
       res.status(200).json({ message: "Form created successfully" });
     })
-    .catch((err) => res.status(400).json({ error: err }));
+    .catch((err) => {
+      console.log("ERROR CREATING FORM", err);
+      res.status(400).json({ error: `Error creating form, maybe it already exists?` })
+    });
 }
 
 export default {
