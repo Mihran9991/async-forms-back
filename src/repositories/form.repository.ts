@@ -9,6 +9,10 @@ export class FormRepository {
     this.repository = repository;
   }
 
+  public create(form: Form): Promise<Form> {
+    return form.save();
+  }
+
   public getAllByOwner(uuid: string): Promise<Form[]> {
     return this.repository.findAll({
       where: {

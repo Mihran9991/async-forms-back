@@ -40,12 +40,7 @@ export class FormService {
         if (!user) {
           throw `User with uuid: ${ownerUUID} not found`;
         }
-        const form: Form = new Form();
-        form.name = dto.name;
-        form.sysName = toUnderscoreCase(dto.name);
-        form.owner = user;
-        form.ownerId = user.uuid;
-        return form.save();
+        return this.createFormsTable(dto, user);
       })
       .then((form: Form) => {
         const tableName: string = getInstancesTableName(form.sysName);
@@ -61,6 +56,15 @@ export class FormService {
 
   public getAllByOwner(uuid: string): Promise<Form[]> {
     return this.repository.getAllByOwner(uuid);
+  }
+
+  private createFormsTable(dto: FormDto, user: User): Promise<Form> {
+    const form: Form = new Form();
+    form.name = dto.name;
+    form.sysName = toUnderscoreCase(dto.name);
+    form.owner = user;
+    form.ownerId = user.uuid;
+    return this.repository.create(form);
   }
 
   private createFieldsTable = (tableName: string): Promise<void> => {
