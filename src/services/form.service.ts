@@ -1,7 +1,7 @@
 import { QueryInterface } from "sequelize";
 
 import FormRepository from "../repositories/form.repository";
-import FormDto from "../dtos/form.dto";
+import CreateFormDto from "../dtos/create.form.dto";
 import Form from "../entities/form.entity";
 import { toUnderscoreCase } from "../utils/string.utils";
 import User from "../entities/user.entity";
@@ -36,7 +36,7 @@ export class FormService {
     return this.repository.getAllByOwner(uuid);
   }
 
-  public create(dto: FormDto, ownerUUID: string): Promise<void> {
+  public create(dto: CreateFormDto, ownerUUID: string): Promise<void> {
     return this.userService
       .findByUUID(ownerUUID)
       .then((user: Nullable<User>) => {
@@ -53,7 +53,7 @@ export class FormService {
       });
   }
 
-  private createForm(dto: FormDto, user: User): Promise<Form> {
+  private createForm(dto: CreateFormDto, user: User): Promise<Form> {
     const form: Form = new Form();
     form.name = dto.name;
     form.sysName = toUnderscoreCase(dto.name);
@@ -63,7 +63,7 @@ export class FormService {
     return this.repository.create(form);
   }
 
-  private createTables(form: Form, dto: FormDto): Promise<void> {
+  private createTables(form: Form, dto: CreateFormDto): Promise<void> {
     return this.createInstancesTable(form).then(() => {
       return this.createFieldsTables(form, dto.fields).then(() => {
         return this.createValuesTables(form, dto.fields);
@@ -124,7 +124,7 @@ export class FormService {
     return this.queryInterface.createTable(tableName, attributes);
   }
 
-  private insertIntoTables(form: Form, dto: FormDto): Promise<void> {
+  private insertIntoTables(form: Form, dto: CreateFormDto): Promise<void> {
     return this.insertFieldsIntoTable(form, dto.fields);
   }
 

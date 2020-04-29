@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import FormService from "../services/form.service";
-import FormDto from "../dtos/form.dto";
+import CreateFormDto from "../dtos/create.form.dto";
 import UserPrincipal from "../principals/user.principal";
 import Form from "../entities/form.entity";
+import FormMapper from "../mappers/form.mappers";
+import FormDto from "../dtos/form.dto";
 
 export function getAllRouter(
   req: Request,
@@ -12,7 +14,10 @@ export function getAllRouter(
   const principal: UserPrincipal = res.locals.userPrincipal;
   return service
     .getAllByOwner(principal.uuid)
-    .then((forms: Form[]) => res.status(200).json({ forms: forms }))
+    .then((forms: Form[]) =>
+      forms.map((form: Form) => FormMapper.fromEntityToDto(form))
+    )
+    .then((dtos: FormDto[]) => res.status(200).json({ forms: dtos }))
     .catch((err) => res.status(400).json({ error: err }));
 }
 
@@ -22,7 +27,7 @@ export function createRouter(
   service: FormService
 ) {
   const principal: UserPrincipal = res.locals.userPrincipal;
-  const formDto: FormDto = new FormDto(
+  const formDto: CreateFormDto = new CreateFormDto(
     req.body.name,
     req.body.fields,
     req.body.style,
