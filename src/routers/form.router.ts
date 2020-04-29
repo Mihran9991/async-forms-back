@@ -12,15 +12,20 @@ export class FormRouter {
       res.locals.formService = service;
       next();
     });
-    router.post(
-      `${BASE_URL}/create`,
+    router.get(
+      `${BASE_URL}/get`,
       [authMiddleware],
-      (req: Request, res: Response) => FormRest.createRouter(req, res, service)
+      (req: Request, res: Response) => FormRest.getRouter(req, res, service)
     );
     router.get(
       `${BASE_URL}/getAll`,
       [authMiddleware],
       (req: Request, res: Response) => FormRest.getAllRouter(req, res, service)
+    );
+    router.post(
+      `${BASE_URL}/create`,
+      [authMiddleware],
+      (req: Request, res: Response) => FormRest.createRouter(req, res, service)
     );
   }
 }

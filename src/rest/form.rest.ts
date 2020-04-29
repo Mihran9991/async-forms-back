@@ -5,6 +5,20 @@ import UserPrincipal from "../principals/user.principal";
 import Form from "../entities/form.entity";
 import FormMapper from "../mappers/form.mappers";
 import FormDto from "../dtos/form.dto";
+import { Nullable } from "../types/main.types";
+
+export function getRouter(req: Request, res: Response, service: FormService) {
+  const id: number = req.body.id;
+  return service
+    .get(id)
+    .then((form: Nullable<Form>) => {
+      if (!form) {
+        throw `Form with id: ${id} not found`;
+      }
+      res.status(200).json(JSON.parse(form.json));
+    })
+    .catch((err) => res.status(400).json({ error: err }));
+}
 
 export function getAllRouter(
   req: Request,
@@ -17,7 +31,7 @@ export function getAllRouter(
     .then((forms: Form[]) =>
       forms.map((form: Form) => FormMapper.fromEntityToDto(form))
     )
-    .then((dtos: FormDto[]) => res.status(200).json({ forms: dtos }))
+    .then((dtos: FormDto[]) => res.status(200).json(dtos))
     .catch((err) => res.status(400).json({ error: err }));
 }
 
@@ -49,6 +63,7 @@ export function createRouter(
 }
 
 export default {
-  createRouter,
+  getRouter,
   getAllRouter,
+  createRouter,
 };

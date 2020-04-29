@@ -1,6 +1,7 @@
 import { Repository } from "sequelize-typescript";
 
 import Form from "../entities/form.entity";
+import { Nullable } from "../types/main.types";
 
 export class FormRepository {
   private repository: Repository<Form>;
@@ -9,8 +10,12 @@ export class FormRepository {
     this.repository = repository;
   }
 
-  public create(form: Form): Promise<Form> {
-    return form.save();
+  public get(id: number): Promise<Nullable<Form>> {
+    return this.repository.findOne({
+      where: {
+        id: id,
+      },
+    });
   }
 
   public getAllByOwner(uuid: string): Promise<Form[]> {
@@ -19,6 +24,10 @@ export class FormRepository {
         ownerId: uuid,
       },
     });
+  }
+
+  public create(form: Form): Promise<Form> {
+    return form.save();
   }
 }
 

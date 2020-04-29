@@ -32,6 +32,10 @@ export class FormService {
     this.queryInterface = queryInterface;
   }
 
+  public get(id: number): Promise<Nullable<Form>> {
+    return this.repository.get(id);
+  }
+
   public getAllByOwner(uuid: string): Promise<Form[]> {
     return this.repository.getAllByOwner(uuid);
   }
