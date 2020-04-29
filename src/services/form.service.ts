@@ -1,9 +1,4 @@
-import {
-  BOOLEAN as SEQ_BOOL_TYPE,
-  INTEGER as SEQ_INT_TYPE,
-  QueryInterface,
-  STRING as SEQ_STRING_TYPE,
-} from "sequelize";
+import { QueryInterface } from "sequelize";
 
 import FormRepository from "../repositories/form.repository";
 import FormDto from "../dtos/form.dto";
@@ -13,8 +8,12 @@ import User from "../entities/user.entity";
 import UserService from "./user.service";
 import { FormField, Nullable } from "../types/main.types";
 import {
+  getFieldsAttributes,
   getFieldsTableName,
+  getInstancesAttributes,
   getInstancesTableName,
+  getValuesAttributes,
+  getValuesTableName,
   isTable,
 } from "../utils/form.utils";
 
@@ -33,6 +32,10 @@ export class FormService {
     this.queryInterface = queryInterface;
   }
 
+  public getAllByOwner(uuid: string): Promise<Form[]> {
+    return this.repository.getAllByOwner(uuid);
+  }
+
   public create(dto: FormDto, ownerUUID: string): Promise<void> {
     return this.userService
       .findByUUID(ownerUUID)
@@ -40,120 +43,128 @@ export class FormService {
         if (!user) {
           throw `User with uuid: ${ownerUUID} not found`;
         }
-        return this.createFormsTable(dto, user);
+        return this.createForm(dto, user);
       })
       .then((form: Form) => {
-        const tableName: string = getInstancesTableName(form.sysName);
-        return this.createInstancesTable(tableName).then(() => form);
-      })
-      .then((form: Form) => {
-        const tableName: string = getFieldsTableName(form.sysName);
-        return this.createFieldsTable(tableName).then(() => {
-          return this.insertFieldsIntoTable(form, dto.fields);
-        });
+        return this.createTables(form, dto);
+        //   .then(() => {
+        //   return this.insertIntoTables(form, dto);
+        // });
       });
   }
 
-  public getAllByOwner(uuid: string): Promise<Form[]> {
-    return this.repository.getAllByOwner(uuid);
-  }
-
-  private createFormsTable(dto: FormDto, user: User): Promise<Form> {
+  private createForm(dto: FormDto, user: User): Promise<Form> {
     const form: Form = new Form();
     form.name = dto.name;
     form.sysName = toUnderscoreCase(dto.name);
     form.owner = user;
     form.ownerId = user.uuid;
+    form.json = dto.json;
     return this.repository.create(form);
   }
 
-  private createFieldsTable = (tableName: string): Promise<void> => {
-    return this.queryInterface.createTable(tableName, {
-      id: {
-        type: SEQ_INT_TYPE,
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      name: {
-        type: SEQ_STRING_TYPE,
-        allowNull: false,
-        unique: true,
-      },
-      sysName: {
-        type: SEQ_STRING_TYPE,
-        allowNull: false,
-        unique: true,
-      },
-      type: {
-        type: SEQ_STRING_TYPE,
-        allowNull: false,
-      },
-      style: {
-        type: SEQ_STRING_TYPE,
-        allowNull: true,
-      },
-      optional: {
-        type: SEQ_BOOL_TYPE,
-        allowNull: false,
-        defaultValue: false,
-      },
+  private createTables(form: Form, dto: FormDto): Promise<void> {
+    return this.createInstancesTable(form).then(() => {
+      return this.createFieldsTables(form, dto.fields).then(() => {
+        return this.createValuesTables(form, dto.fields);
+      });
     });
+  }
+
+  private createInstancesTable = (form: Form): Promise<void> => {
+    const tableName: string = getInstancesTableName(form.sysName);
+    return this.queryInterface.createTable(tableName, getInstancesAttributes());
   };
 
-  private createInstancesTable = (tableName: string): Promise<void> => {
-    return this.queryInterface.createTable(tableName, {
-      id: {
-        type: SEQ_INT_TYPE,
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      name: {
-        type: SEQ_STRING_TYPE,
-        allowNull: false,
-        unique: true,
-      },
-      ownerId: {
-        type: SEQ_STRING_TYPE,
-        references: {
-          model: "users",
-          key: "uuid",
-        },
-      },
-    });
-  };
-
-  private insertFieldsIntoTable(form: Form, fields: FormField[]) {
+  private createFieldsTables = (
+    form: Form,
+    fields: FormField[]
+  ): Promise<void> => {
     const tableName: string = getFieldsTableName(form.sysName);
-    return fields.forEach((field: FormField) => {
-      return this.insertFieldIntoTable(tableName, field).then(() => {
+    return this.createFieldsTable(tableName).then(() => {
+      return fields.forEach((field: FormField) => {
         if (isTable(field)) {
           const tableName: string = getFieldsTableName(
             form.sysName,
             field.name
           );
-          return this.createFieldsTable(tableName).then(() => {
-            return field.type.fields?.forEach((field: FormField) => {
-              return this.insertFieldIntoTable(tableName, field);
-            });
-          });
+          return this.createFieldsTable(tableName);
+        }
+      });
+    });
+  };
+
+  private createValuesTables(form: Form, fields: FormField[]): Promise<void> {
+    return this.createValuesTable(form).then(() => {
+      return fields.forEach((field: FormField) => {
+        if (isTable(field)) {
+          return this.createValuesTable(form, field);
         }
       });
     });
   }
 
-  private insertFieldIntoTable(
-    tableName: string,
-    field: FormField
-  ): Promise<object> {
-    return this.queryInterface.bulkInsert(tableName, [
-      {
-        name: field.name,
-        sysName: toUnderscoreCase(field.name),
-        type: field.type.name,
-        optional: field.optional,
-      },
-    ]);
+  private createFieldsTable(tableName: string): Promise<void> {
+    return this.queryInterface.createTable(tableName, getFieldsAttributes());
   }
+
+  private createValuesTable(
+    form: Form,
+    field: Nullable<FormField> = null
+  ): Promise<void> {
+    const tableName: string = getValuesTableName(form.sysName, field?.name);
+    const fieldsTableName: string = getFieldsTableName(
+      form.sysName,
+      field?.name
+    );
+    const instancesTableName: string = getInstancesTableName(form.sysName);
+    return this.queryInterface.createTable(
+      tableName,
+      getValuesAttributes(instancesTableName, fieldsTableName)
+    );
+  }
+
+  // private insertIntoTables(form: Form, dto: FormDto): Promise<void> {
+  //   this.insertFieldsIntoTable(form, dto.fields).
+  //   // .then((form: Form) => {
+  //   //   const tableName: string = getFieldsTableName(form.sysName);
+  //   //   return this.createFieldsTable(tableName).then(() => {
+  //   //     this.insertFieldsIntoTable(form, dto.fields);
+  //   //     return this.createValuesTable(form, dto.fields);
+  //   //   });
+  //   // });
+  // }
+
+  // private insertFieldsIntoTable(form: Form, fields: FormField[]): Promise<void> {
+  //   const tableName: string = getFieldsTableName(form.sysName);
+  //   return Promise.resolve(fields.forEach((field: FormField) => {
+  //     return this.insertFieldIntoTable(tableName, field).then(() => {
+  //       if (isTable(field)) {
+  //         const tableName: string = getFieldsTableName(
+  //           form.sysName,
+  //           field.name
+  //         );
+  //         field.type.fields?.forEach((field: FormField) =>
+  //           this.insertFieldIntoTable(tableName, field)
+  //         );
+  //       }
+  //     });
+  //   }));
+  // }
+
+  // private insertFieldIntoTable(
+  //   tableName: string,
+  //   field: FormField
+  // ): Promise<object> {
+  //   return this.queryInterface.bulkInsert(tableName, [
+  //     {
+  //       name: field.name,
+  //       sysName: toUnderscoreCase(field.name),
+  //       type: field.type.name,
+  //       optional: field.optional
+  //     }
+  //   ]);
+  // }
 }
 
 export default FormService;

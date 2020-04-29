@@ -26,8 +26,10 @@ export function createRouter(
     req.body.name,
     req.body.fields,
     req.body.style,
-    req.body.optional
+    req.body.optional,
+    JSON.stringify(req.body)
   );
+  console.log(formDto.json);
   return service
     .create(formDto, principal.uuid)
     .then(() => {
@@ -35,7 +37,9 @@ export function createRouter(
     })
     .catch((err) => {
       console.log("ERROR CREATING FORM", err);
-      res.status(400).json({ error: `Error creating form, maybe it already exists?` })
+      res
+        .status(400)
+        .json({ error: `Error creating form, maybe it already exists?` });
     });
 }
 

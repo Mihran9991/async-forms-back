@@ -5,6 +5,8 @@ import {
   Model,
   Table,
 } from "sequelize-typescript";
+import { TEXT } from "sequelize";
+
 import User from "./user.entity";
 
 @Table({
@@ -33,6 +35,11 @@ export class Form extends Model {
   ownerId: string;
   @BelongsTo(() => User)
   owner: User;
+  @Column({
+    allowNull: false,
+    type: TEXT,
+  })
+  json: string;
 }
 
 export default Form;
