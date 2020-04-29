@@ -46,10 +46,10 @@ export class FormService {
         return this.createForm(dto, user);
       })
       .then((form: Form) => {
-        return this.createTables(form, dto);
-        //   .then(() => {
-        //   return this.insertIntoTables(form, dto);
-        // });
+        return this.createTables(form, dto).then(() => form);
+      })
+      .then((form: Form) => {
+        return this.insertIntoTables(form, dto);
       });
   }
 
@@ -73,7 +73,8 @@ export class FormService {
 
   private createInstancesTable = (form: Form): Promise<void> => {
     const tableName: string = getInstancesTableName(form.sysName);
-    return this.queryInterface.createTable(tableName, getInstancesAttributes());
+    const attributes = getInstancesAttributes();
+    return this.queryInterface.createTable(tableName, attributes);
   };
 
   private createFieldsTables = (
@@ -105,7 +106,8 @@ export class FormService {
   }
 
   private createFieldsTable(tableName: string): Promise<void> {
-    return this.queryInterface.createTable(tableName, getFieldsAttributes());
+    const attributes = getFieldsAttributes();
+    return this.queryInterface.createTable(tableName, attributes);
   }
 
   private createValuesTable(
@@ -118,53 +120,49 @@ export class FormService {
       field?.name
     );
     const instancesTableName: string = getInstancesTableName(form.sysName);
-    return this.queryInterface.createTable(
-      tableName,
-      getValuesAttributes(instancesTableName, fieldsTableName)
+    const attributes = getValuesAttributes(instancesTableName, fieldsTableName);
+    return this.queryInterface.createTable(tableName, attributes);
+  }
+
+  private insertIntoTables(form: Form, dto: FormDto): Promise<void> {
+    return this.insertFieldsIntoTable(form, dto.fields);
+  }
+
+  private insertFieldsIntoTable(
+    form: Form,
+    fields: FormField[]
+  ): Promise<void> {
+    return Promise.resolve(
+      fields.forEach((field: FormField) => {
+        const tableName: string = getFieldsTableName(form.sysName);
+        return this.insertFieldIntoTable(tableName, field).then(() => {
+          if (isTable(field)) {
+            return field.type.fields?.forEach((subField: FormField) => {
+              const tableName: string = getFieldsTableName(
+                form.sysName,
+                field.name
+              );
+              return this.insertFieldIntoTable(tableName, subField);
+            });
+          }
+        });
+      })
     );
   }
 
-  // private insertIntoTables(form: Form, dto: FormDto): Promise<void> {
-  //   this.insertFieldsIntoTable(form, dto.fields).
-  //   // .then((form: Form) => {
-  //   //   const tableName: string = getFieldsTableName(form.sysName);
-  //   //   return this.createFieldsTable(tableName).then(() => {
-  //   //     this.insertFieldsIntoTable(form, dto.fields);
-  //   //     return this.createValuesTable(form, dto.fields);
-  //   //   });
-  //   // });
-  // }
-
-  // private insertFieldsIntoTable(form: Form, fields: FormField[]): Promise<void> {
-  //   const tableName: string = getFieldsTableName(form.sysName);
-  //   return Promise.resolve(fields.forEach((field: FormField) => {
-  //     return this.insertFieldIntoTable(tableName, field).then(() => {
-  //       if (isTable(field)) {
-  //         const tableName: string = getFieldsTableName(
-  //           form.sysName,
-  //           field.name
-  //         );
-  //         field.type.fields?.forEach((field: FormField) =>
-  //           this.insertFieldIntoTable(tableName, field)
-  //         );
-  //       }
-  //     });
-  //   }));
-  // }
-
-  // private insertFieldIntoTable(
-  //   tableName: string,
-  //   field: FormField
-  // ): Promise<object> {
-  //   return this.queryInterface.bulkInsert(tableName, [
-  //     {
-  //       name: field.name,
-  //       sysName: toUnderscoreCase(field.name),
-  //       type: field.type.name,
-  //       optional: field.optional
-  //     }
-  //   ]);
-  // }
+  private insertFieldIntoTable(
+    tableName: string,
+    field: FormField
+  ): Promise<object> {
+    return this.queryInterface.bulkInsert(tableName, [
+      {
+        name: field.name,
+        sysName: toUnderscoreCase(field.name),
+        type: field.type.name,
+        optional: field.optional,
+      },
+    ]);
+  }
 }
 
 export default FormService;
