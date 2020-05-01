@@ -1,5 +1,4 @@
 import express from "express";
-import SocketIO from "./services/socket.service";
 import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -15,6 +14,7 @@ import UserRepository from "./repositories/user.repository";
 import FormRepository from "./repositories/form.repository";
 import ForgotRequestRepository from "./repositories/forgot.request.repository";
 
+import SocketIO from "./services/socket.service";
 import UserService from "./services/user.service";
 import AuthService from "./services/auth.service";
 import EmailService from "./services/email.service";
@@ -126,7 +126,7 @@ class App {
     this.formService = new FormService(
       this.formRepository,
       this.userService,
-      this.sequelize.getQueryInterface()
+      this.sequelize
     );
     console.log("Services initiated successfully");
   }

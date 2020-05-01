@@ -1,4 +1,4 @@
-import { Dialect } from "sequelize/types";
+import { Dialect } from "sequelize";
 import { ConfigType } from "../types/main.types";
 
 export const HOST: ConfigType = process.env.SEQ_HOST;

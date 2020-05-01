@@ -95,9 +95,10 @@ export const getFieldsAttributes = () => {
 
 export const getValuesAttributes = (
   instancesTableName: string,
-  fieldsTableName: string
+  fieldsTableName: string,
+  includeRowId: boolean = false
 ) => {
-  return {
+  const json = {
     id: {
       type: SEQ_INT_TYPE,
       primaryKey: true,
@@ -137,6 +138,17 @@ export const getValuesAttributes = (
       type: SEQ_DATE_TYPE,
       defaultValue: new Date(),
       allowNull: false,
+    },
+  };
+  if (!includeRowId) {
+    return json;
+  }
+  return {
+    ...json,
+    ...{
+      rowId: {
+        type: SEQ_INT_TYPE,
+      },
     },
   };
 };
