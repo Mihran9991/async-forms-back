@@ -7,9 +7,11 @@ import { toUnderscoreCase } from "../utils/string.utils";
 import User from "../entities/user.entity";
 import UserService from "./user.service";
 import { FormField, Nullable } from "../types/main.types";
+import PromiseUtils from "../utils/promise.utils";
 import {
   getFieldsAttributes,
   getFieldsTableName,
+  getInsertFieldAttributes,
   getInstancesAttributes,
   getInstancesTableName,
   getValuesAttributes,
@@ -50,7 +52,7 @@ export class FormService {
         return this.createForm(dto, user);
       })
       .then((form: Form) => this.createTables(form, dto).then(() => form))
-      .then((form: Form) => this.insertIntoTables(form, dto));
+      .then((form: Form) => this.insertFieldsIntoTable(form, dto.fields));
   }
 
   private createForm(dto: CreateFormDto, user: User): Promise<Form> {
@@ -64,11 +66,11 @@ export class FormService {
   }
 
   private createTables(form: Form, dto: CreateFormDto): Promise<void> {
-    return this.createInstancesTable(form).then(() => {
-      return this.createFieldsTables(form, dto.fields).then(() => {
-        return this.createValuesTables(form, dto.fields);
-      });
-    });
+    return PromiseUtils.serial(this, [
+      () => this.createInstancesTable(form),
+      () => this.createFieldsTables(form, dto.fields),
+      () => this.createValuesTables(form, dto.fields),
+    ]);
   }
 
   private createInstancesTable = (form: Form): Promise<void> => {
@@ -135,10 +137,6 @@ export class FormService {
       .createTable(tableName, attributes);
   }
 
-  private insertIntoTables(form: Form, dto: CreateFormDto): Promise<void> {
-    return this.insertFieldsIntoTable(form, dto.fields);
-  }
-
   private insertFieldsIntoTable(
     form: Form,
     fields: FormField[]
@@ -165,14 +163,11 @@ export class FormService {
     tableName: string,
     field: FormField
   ): Promise<object> {
-    return this.sequelize.getQueryInterface().bulkInsert(tableName, [
-      {
-        name: field.name,
-        sysName: toUnderscoreCase(field.name),
-        type: field.type.name,
-        optional: field.optional,
-      },
-    ]);
+    return this.sequelize
+      .getQueryInterface()
+      .bulkInsert(tableName, [
+        getInsertFieldAttributes(field.name, field.type.name, field.optional),
+      ]);
   }
 }
 

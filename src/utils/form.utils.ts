@@ -7,6 +7,7 @@ import {
 
 import { Nullable } from "../types/main.types";
 import { toUnderscoreCase } from "./string.utils";
+import { Sequelize } from "sequelize-typescript";
 
 const TABLE_TYPE: string = "table";
 
@@ -134,12 +135,7 @@ export const getValuesAttributes = (
     },
     createdAt: {
       type: SEQ_DATE_TYPE,
-      defaultValue: new Date(),
-      allowNull: false,
-    },
-    updatedAt: {
-      type: SEQ_DATE_TYPE,
-      defaultValue: new Date(),
+      defaultValue: Sequelize.fn("now"),
       allowNull: false,
     },
   };
@@ -151,7 +147,21 @@ export const getValuesAttributes = (
     ...{
       rowId: {
         type: SEQ_INT_TYPE,
+        allowNull: false,
       },
     },
+  };
+};
+
+export const getInsertFieldAttributes = (
+  fieldName: string,
+  fieldType: string,
+  isOptional: boolean
+) => {
+  return {
+    name: fieldName,
+    sysName: toUnderscoreCase(fieldName),
+    type: fieldType,
+    optional: isOptional,
   };
 };
