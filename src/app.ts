@@ -8,6 +8,7 @@ import cloudinary from "cloudinary";
 import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
 import FormRouter from "./routers/form.router";
+import FormInstanceRouter from "./routers/form.instance.router";
 import ForgotPasswordRouter from "./routers/forgot.password.router";
 
 import UserRepository from "./repositories/user.repository";
@@ -21,6 +22,7 @@ import EmailService from "./services/email.service";
 import ForgotRequestService from "./services/forgot.request.service";
 import ForgotPasswordService from "./services/forgot.password.service";
 import FormService from "./services/form.service";
+import FormInstanceService from "./services/form.instance.service";
 import CloudService from "./services/cloud.service";
 
 import User from "./entities/user.entity";
@@ -42,6 +44,7 @@ class App {
   private userRouter: UserRouter;
   private forgotPasswordRouter: ForgotPasswordRouter;
   private formRouter: FormRouter;
+  private formInstanceRouter: FormInstanceRouter;
 
   private authService: AuthService;
   private emailService: EmailService;
@@ -49,6 +52,7 @@ class App {
   private userService: UserService;
   private forgotRequestService: ForgotRequestService;
   private formService: FormService;
+  private formInstanceService: FormInstanceService;
   private cloudService: CloudService;
 
   private userRepository: UserRepository;
@@ -128,6 +132,10 @@ class App {
       this.userService,
       this.sequelize
     );
+    this.formInstanceService = new FormInstanceService(
+      this.formService,
+      this.sequelize
+    );
     console.log("Services initiated successfully");
   }
 
@@ -135,10 +143,14 @@ class App {
     console.log("Initiating routers...");
     this.authRouter = new AuthRouter(router, this.authService);
     this.userRouter = new UserRouter(router, this.userService);
-    this.formRouter = new FormRouter(router, this.formService);
     this.forgotPasswordRouter = new ForgotPasswordRouter(
       router,
       this.forgotPasswordService
+    );
+    this.formRouter = new FormRouter(router, this.formService);
+    this.formInstanceRouter = new FormInstanceRouter(
+      router,
+      this.formInstanceService
     );
     this.app.use("/", router);
     console.log("Routers initiated successfully");

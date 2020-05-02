@@ -6,7 +6,7 @@ import Form from "../entities/form.entity";
 import { toUnderscoreCase } from "../utils/string.utils";
 import User from "../entities/user.entity";
 import UserService from "./user.service";
-import { FormField, FormInstance, Nullable } from "../types/main.types";
+import { FormField, Nullable } from "../types/main.types";
 import {
   getFieldsAttributes,
   getFieldsTableName,
@@ -16,8 +16,6 @@ import {
   getValuesTableName,
   isTable,
 } from "../utils/form.utils";
-import CreateFormInstanceDto from "../dtos/create.form.instance.dto";
-import { InsertFormValueDto } from "../dtos/insert.form.value.dto";
 
 export class FormService {
   private repository: FormRepository;
@@ -42,27 +40,6 @@ export class FormService {
     return this.repository.getAllByOwner(uuid);
   }
 
-  public getInstanceByName(
-    name: string,
-    formName: string
-  ): Promise<Nullable<FormInstance>> {
-    return this.getByName(formName).then((form: Nullable<Form>) => {
-      if (!form) {
-        throw `Form with name: ${formName} not found`;
-      }
-      return this.sequelize
-        .getQueryInterface()
-        .select(null, getInstancesTableName(form.sysName), {
-          where: {
-            name: name,
-          },
-        })
-        .then((result: object[]) =>
-          result.length ? (result[0] as FormInstance) : null
-        );
-    });
-  }
-
   public create(dto: CreateFormDto, ownerUUID: string): Promise<void> {
     return this.userService
       .findByUUID(ownerUUID)
@@ -74,104 +51,6 @@ export class FormService {
       })
       .then((form: Form) => this.createTables(form, dto).then(() => form))
       .then((form: Form) => this.insertIntoTables(form, dto));
-  }
-
-  public createInstance(
-    dto: CreateFormInstanceDto,
-    ownerUUID: string
-  ): Promise<Nullable<FormInstance>> {
-    return this.getByName(dto.formName)
-      .then((form: Nullable<Form>) => {
-        if (!form) {
-          throw `Form with name: ${dto.formName} not found`;
-        }
-        const tableName = getInstancesTableName(form.sysName);
-        return this.sequelize
-          .getQueryInterface()
-          .bulkInsert(tableName, [
-            {
-              name: dto.name,
-              ownerId: ownerUUID,
-            },
-          ])
-          .then((res) => {
-            return res;
-          });
-      })
-      .then(() => this.getInstanceByName(dto.name, dto.formName));
-  }
-
-  public insertValue(
-    dto: InsertFormValueDto,
-    ownerUUID: string
-  ): Promise<object> {
-    return this.getByName(dto.formName).then((form: Nullable<Form>) => {
-      if (!form) {
-        throw `Form with name: ${dto.formName} not found`;
-      }
-      return this.getInstanceByName(dto.instanceName, dto.formName).then(
-        (instance: Nullable<FormInstance>) => {
-          if (!instance) {
-            throw `Form instance with name: ${dto.instanceName} not found`;
-          }
-          const fieldsTable: string = getFieldsTableName(form.sysName);
-          return this.sequelize
-            .getQueryInterface()
-            .select(null, fieldsTable, {
-              where: {
-                sysName: toUnderscoreCase(dto.field.name),
-              },
-            })
-            .then((res: object[]) => {
-              const field = res[0] as { id: number; type: string };
-              if (isTable(field.type)) {
-                const nestedFieldsTable: string = getFieldsTableName(
-                  form.sysName,
-                  dto.field.name
-                );
-                return this.sequelize
-                  .getQueryInterface()
-                  .select(null, nestedFieldsTable, {
-                    where: {
-                      sysName: toUnderscoreCase(
-                        dto.field.field?.name as string
-                      ),
-                    },
-                  })
-                  .then((res) => {
-                    const nestedField = res[0] as { id: number; type: string };
-                    const nestedValuesTable: string = getValuesTableName(
-                      form.sysName,
-                      dto.field.name
-                    );
-                    return this.sequelize
-                      .getQueryInterface()
-                      .bulkInsert(nestedValuesTable, [
-                        {
-                          instanceId: instance.id,
-                          fieldId: nestedField.id,
-                          rowId: dto.field.field?.rowId,
-                          value: dto.field.field?.value,
-                          ownerId: ownerUUID,
-                        },
-                      ]);
-                  });
-              }
-              const valuesTable: string = getValuesTableName(form.sysName);
-              return this.sequelize
-                .getQueryInterface()
-                .bulkInsert(valuesTable, [
-                  {
-                    instanceId: instance.id,
-                    fieldId: field.id,
-                    value: dto.field.value,
-                    ownerId: ownerUUID,
-                  },
-                ]);
-            });
-        }
-      );
-    });
   }
 
   private createForm(dto: CreateFormDto, user: User): Promise<Form> {
