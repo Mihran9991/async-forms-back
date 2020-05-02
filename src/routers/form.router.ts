@@ -12,20 +12,21 @@ export class FormRouter {
       next();
     });
     router.get(
-      `${FormConstants.FORM_BASE_URL}/get`,
+      `${FormConstants.FORM_BASE_URL}/getByName`,
       [authMiddleware],
-      (req: Request, res: Response) => FormRest.getRouter(req, res, service)
+      (req: Request, res: Response) =>
+        FormRest.getByNameRouter(req, res, service)
+    );
+    router.get(
+      `${FormConstants.FORM_INSTANCE_BASE_URL}/getByName`,
+      [authMiddleware],
+      (req: Request, res: Response) =>
+        FormRest.getInstanceByNameRouter(req, res, service)
     );
     router.get(
       `${FormConstants.FORM_BASE_URL}/getAll`,
       [authMiddleware],
       (req: Request, res: Response) => FormRest.getAllRouter(req, res, service)
-    );
-    router.get(
-      `${FormConstants.FORM_INSTANCE_BASE_URL}/get`,
-      [authMiddleware],
-      (req: Request, res: Response) =>
-        FormRest.getInstanceRouter(req, res, service)
     );
     router.post(
       `${FormConstants.FORM_BASE_URL}/create`,
@@ -37,6 +38,11 @@ export class FormRouter {
       [authMiddleware],
       (req: Request, res: Response) =>
         FormRest.createInstanceRouter(req, res, service)
+    );
+    router.post(
+      `${FormConstants.FORM_VALUE_BASE_URL}/insert`,
+      [authMiddleware],
+      (req: Request, res: Response) => FormRest.insertValue(req, res, service)
     );
   }
 }

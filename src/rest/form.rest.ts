@@ -5,36 +5,41 @@ import UserPrincipal from "../principals/user.principal";
 import Form from "../entities/form.entity";
 import FormMapper from "../mappers/form.mappers";
 import FormDto from "../dtos/form.dto";
-import { Nullable } from "../types/main.types";
+import { FormInstance, Nullable } from "../types/main.types";
 import CreateFormInstanceDto from "../dtos/create.form.instance.dto";
+import { InsertFormValueDto } from "../dtos/insert.form.value.dto";
 
-export function getRouter(req: Request, res: Response, service: FormService) {
-  const id: number = req.body.id;
+export function getByNameRouter(
+  req: Request,
+  res: Response,
+  service: FormService
+) {
+  const name: string = req.body.name;
   return service
-    .get(id)
+    .getByName(name)
     .then((form: Nullable<Form>) => {
       if (!form) {
-        throw `Form with id: ${id} not found`;
+        throw `Form with name: ${name} not found`;
       }
       res.status(200).json(JSON.parse(form.json));
     })
     .catch((err) => res.status(400).json({ error: err }));
 }
 
-export function getInstanceRouter(
+export function getInstanceByNameRouter(
   req: Request,
   res: Response,
   service: FormService
 ) {
-  const id: number = req.body.id;
-  const formId: number = req.body.formId;
+  const name: string = req.body.name;
+  const formName: string = req.body.formName;
   return service
-    .getInstance(id, formId)
-    .then((instance: Nullable<object>) => {
+    .getInstanceByName(name, formName)
+    .then((instance: Nullable<FormInstance>) => {
       if (!instance) {
-        throw `Form instance with id: ${id} not found`;
+        throw `Form instance with name: ${name} not found`;
       }
-      res.status(200).json(instance);
+      res.status(200).json(FormMapper.fromInstanceEntityToDto(instance));
     })
     .catch((err) => res.status(400).json({ error: err }));
 }
@@ -88,12 +93,14 @@ export function createInstanceRouter(
   const principal: UserPrincipal = res.locals.userPrincipal;
   const formDto: CreateFormInstanceDto = new CreateFormInstanceDto(
     req.body.name,
-    req.body.formId
+    req.body.formName
   );
   return service
     .createInstance(formDto, principal.uuid)
     .then((instance) => {
-      res.status(200).json(instance);
+      res
+        .status(200)
+        .json(FormMapper.fromInstanceEntityToDto(instance as FormInstance));
     })
     .catch(() => {
       res
@@ -102,10 +109,28 @@ export function createInstanceRouter(
     });
 }
 
+export function insertValue(req: Request, res: Response, service: FormService) {
+  const principal: UserPrincipal = res.locals.userPrincipal;
+  const valueDto: InsertFormValueDto = new InsertFormValueDto(
+    req.body.formName,
+    req.body.instanceName,
+    req.body.field
+  );
+  return service
+    .insertValue(valueDto, principal.uuid)
+    .then(() => {
+      res.status(200).json("Value inserted successfully");
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+}
+
 export default {
-  getRouter,
+  getByNameRouter,
+  getInstanceByNameRouter,
   getAllRouter,
-  getInstanceRouter,
   createRouter,
   createInstanceRouter,
+  insertValue,
 };

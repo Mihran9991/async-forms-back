@@ -19,3 +19,19 @@ export interface FormFieldType {
   values: Nullable<string[]>;
   fields: Nullable<FormField[]>;
 }
+
+export interface FormInstance {
+  id: number;
+  name: string;
+  ownerId: string;
+}
+
+export interface FormInsertValueField {
+  name: string;
+  field: Nullable<{
+    rowId: number;
+    name: string;
+    value: string;
+  }>;
+  value: Nullable<string>;
+}

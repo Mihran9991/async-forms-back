@@ -13,6 +13,8 @@ URL Mappings
 - Get form: /form/get
 - Get all forms: /form/getAll
 - Create form: /form/create
+- Create form instance: /form/instance/create
+- Insert value into instance: /form/value/insert
 ---
 
 ## Quick Start

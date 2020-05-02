@@ -1,10 +1,10 @@
 export class CreateFormInstanceDto {
   public name: string;
-  public formId: number;
+  public formName: string;
 
-  public constructor(name: string, formId: number) {
+  public constructor(name: string, formName: string) {
     this.name = name;
-    this.formId = formId;
+    this.formName = formName;
   }
 }
 

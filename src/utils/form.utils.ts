@@ -5,13 +5,13 @@ import {
   STRING as SEQ_STRING_TYPE,
 } from "sequelize";
 
-import { FormField, Nullable } from "../types/main.types";
+import { Nullable } from "../types/main.types";
 import { toUnderscoreCase } from "./string.utils";
 
 const TABLE_TYPE: string = "table";
 
-export function isTable(field: FormField): boolean {
-  return field.type.name == TABLE_TYPE;
+export function isTable(type: string): boolean {
+  return type === TABLE_TYPE;
 }
 
 export function getInstancesTableName(formSysName: string) {
@@ -28,6 +28,9 @@ export function getFieldsTableName(
   return `${formSysName}_form_${toUnderscoreCase(fieldName)}_fields`;
 }
 
+// TODO: consider applying toUnderscoreCase(...) function
+// TODO: to formSysName parameter as well,
+// TODO: and rename the parameter to just 'formName'
 export function getValuesTableName(
   formSysName: string,
   fieldName: Nullable<string> = null

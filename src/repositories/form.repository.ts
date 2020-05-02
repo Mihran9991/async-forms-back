@@ -10,10 +10,10 @@ export class FormRepository {
     this.repository = repository;
   }
 
-  public get(id: number): Promise<Nullable<Form>> {
+  public getByName(name: string): Promise<Nullable<Form>> {
     return this.repository.findOne({
       where: {
-        id: id,
+        sysName: name,
       },
     });
   }
