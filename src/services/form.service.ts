@@ -1,5 +1,3 @@
-import { Sequelize } from "sequelize-typescript";
-
 import FormRepository from "../repositories/form.repository";
 import CreateFormDto from "../dtos/create.form.dto";
 import Form from "../entities/form.entity";
@@ -18,20 +16,21 @@ import {
   getValuesTableName,
   isTable,
 } from "../utils/form.utils";
+import TableService from "./table.service";
 
 export class FormService {
   private repository: FormRepository;
   private userService: UserService;
-  private sequelize: Sequelize;
+  private tableService: TableService;
 
   public constructor(
     repository: FormRepository,
     userService: UserService,
-    sequelize: Sequelize
+    tableService: TableService
   ) {
     this.repository = repository;
     this.userService = userService;
-    this.sequelize = sequelize;
+    this.tableService = tableService;
   }
 
   public getByName(name: string): Promise<Nullable<Form>> {
@@ -76,9 +75,7 @@ export class FormService {
   private createInstancesTable = (form: Form): Promise<void> => {
     const tableName: string = getInstancesTableName(form.sysName);
     const attributes = getInstancesAttributes();
-    return this.sequelize
-      .getQueryInterface()
-      .createTable(tableName, attributes);
+    return this.tableService.create(tableName, attributes);
   };
 
   private createFieldsTables = (
@@ -111,9 +108,7 @@ export class FormService {
 
   private createFieldsTable(tableName: string): Promise<void> {
     const attributes = getFieldsAttributes();
-    return this.sequelize
-      .getQueryInterface()
-      .createTable(tableName, attributes);
+    return this.tableService.create(tableName, attributes);
   }
 
   private createValuesTable(
@@ -132,9 +127,7 @@ export class FormService {
       fieldsTableName,
       includeRowId
     );
-    return this.sequelize
-      .getQueryInterface()
-      .createTable(tableName, attributes);
+    return this.tableService.create(tableName, attributes);
   }
 
   private insertFieldsIntoTable(
@@ -163,11 +156,10 @@ export class FormService {
     tableName: string,
     field: FormField
   ): Promise<object> {
-    return this.sequelize
-      .getQueryInterface()
-      .bulkInsert(tableName, [
-        getInsertFieldAttributes(field.name, field.type.name, field.optional),
-      ]);
+    return this.tableService.insert(
+      tableName,
+      getInsertFieldAttributes(field.name, field.type.name, field.optional)
+    );
   }
 }
 

@@ -28,10 +28,17 @@ export interface FormInstance {
 
 export interface FormInsertValueField {
   name: string;
-  field: Nullable<{
-    rowId: number;
-    name: string;
-    value: string;
-  }>;
+  field: Nullable<FormInsertValueNestedField>;
   value: Nullable<string>;
+}
+
+export interface FormInsertValueNestedField {
+  rowId: number;
+  name: string;
+  value: string;
+}
+
+export interface IdType {
+  id: number;
+  type: string;
 }

@@ -144,11 +144,9 @@ export const getValuesAttributes = (
   }
   return {
     ...json,
-    ...{
-      rowId: {
-        type: SEQ_INT_TYPE,
-        allowNull: false,
-      },
+    rowId: {
+      type: SEQ_INT_TYPE,
+      allowNull: false,
     },
   };
 };
@@ -163,5 +161,27 @@ export const getInsertFieldAttributes = (
     sysName: toUnderscoreCase(fieldName),
     type: fieldType,
     optional: isOptional,
+  };
+};
+
+export const getInsertValueAttributes = (
+  instanceId: number,
+  fieldId: number,
+  value: string,
+  ownerId: string,
+  rowId: Nullable<number> = null
+) => {
+  const json = {
+    instanceId: instanceId,
+    fieldId: fieldId,
+    value: value,
+    ownerId: ownerId,
+  };
+  if (!rowId) {
+    return json;
+  }
+  return {
+    ...json,
+    rowId: rowId,
   };
 };

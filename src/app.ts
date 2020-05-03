@@ -24,6 +24,7 @@ import ForgotPasswordService from "./services/forgot.password.service";
 import FormService from "./services/form.service";
 import FormInstanceService from "./services/form.instance.service";
 import CloudService from "./services/cloud.service";
+import TableService from "./services/table.service";
 
 import User from "./entities/user.entity";
 import ForgotRequest from "./entities/forgot.request.entity";
@@ -51,6 +52,7 @@ class App {
   private forgotPasswordService: ForgotPasswordService;
   private userService: UserService;
   private forgotRequestService: ForgotRequestService;
+  private tableService: TableService;
   private formService: FormService;
   private formInstanceService: FormInstanceService;
   private cloudService: CloudService;
@@ -127,14 +129,15 @@ class App {
       this.userService,
       this.emailService
     );
+    this.tableService = new TableService(this.sequelize);
     this.formService = new FormService(
       this.formRepository,
       this.userService,
-      this.sequelize
+      this.tableService
     );
     this.formInstanceService = new FormInstanceService(
       this.formService,
-      this.sequelize
+      this.tableService
     );
     console.log("Services initiated successfully");
   }

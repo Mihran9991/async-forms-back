@@ -1,8 +1,9 @@
 import { FormInsertValueField } from "../types/main.types";
+import InstanceDto from "./instance.dto";
 
-export class InsertFormValueDto {
-  public formName: string;
+export class InsertInstanceValueDto extends InstanceDto {
   public instanceName: string;
+  public formName: string;
   public field: FormInsertValueField;
 
   public constructor(
@@ -10,8 +11,7 @@ export class InsertFormValueDto {
     instanceName: string,
     field: FormInsertValueField
   ) {
-    this.formName = formName;
-    this.instanceName = instanceName;
+    super(instanceName, formName);
     this.field = field;
   }
 }
