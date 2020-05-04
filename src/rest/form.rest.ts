@@ -8,12 +8,8 @@ import FormMapper from "../mappers/form.mappers";
 import FormDto from "../dtos/form.dto";
 import { Nullable } from "../types/main.types";
 
-export function getByNameRouter(
-  req: Request,
-  res: Response,
-  service: FormService
-) {
-  const name: string = req.body.name;
+export function getRouter(req: Request, res: Response, service: FormService) {
+  const name: string = req.query.name.toString();
   return service
     .getByName(name)
     .then((form: Nullable<Form>) => {
@@ -67,7 +63,7 @@ export function createRouter(
 }
 
 export default {
-  getByNameRouter,
+  getRouter,
   getAllRouter,
   createRouter,
 };

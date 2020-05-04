@@ -13,8 +13,8 @@ export function getByNameRouter(
   service: FormInstanceService
 ) {
   const instanceDto: InstanceDto = new InstanceDto(
-    req.body.instanceName,
-    req.body.formName
+    req.query.instanceName.toString(),
+    req.query.formName.toString()
   );
   return service
     .getByName(instanceDto)

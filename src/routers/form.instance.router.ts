@@ -4,6 +4,7 @@ import FormInstanceRest from "../rest/form.instance.rest";
 import FormInstanceService from "../services/form.instance.service";
 import authMiddleware from "../middlewares/auth.middleware";
 import { FORM_INSTANCE_BASE_URL as BASE_URL } from "../constants/form.constants";
+import ValidationMid from "../middlewares/validation.middleware";
 
 export class FormInstanceRouter {
   constructor(router: Router, service: FormInstanceService) {
@@ -12,8 +13,10 @@ export class FormInstanceRouter {
       next();
     });
     router.get(
-      `${BASE_URL}/getByName`,
+      `${BASE_URL}/get`,
       [authMiddleware],
+      ValidationMid.getInstanceParams(),
+      ValidationMid.validate,
       (req: Request, res: Response) =>
         FormInstanceRest.getByNameRouter(req, res, service)
     );
