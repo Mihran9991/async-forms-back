@@ -6,8 +6,9 @@ import FormMapper from "../mappers/form.mappers";
 import { FormInstance, Nullable } from "../types/main.types";
 import InstanceDto from "../dtos/instance.dto";
 import { InsertInstanceValueDto } from "../dtos/insert.instance.value.dto";
+import GetFormInstanceDto from "../dtos/get.form.instance.dto";
 
-export function getByNameRouter(
+export function getRouter(
   req: Request,
   res: Response,
   service: FormInstanceService
@@ -17,7 +18,7 @@ export function getByNameRouter(
     req.query.formName.toString()
   );
   return service
-    .getByName(instanceDto)
+    .get(instanceDto)
     .then((instance: Nullable<FormInstance>) => {
       if (!instance) {
         throw `Form instance with name: ${name} not found`;
@@ -25,6 +26,25 @@ export function getByNameRouter(
       res.status(200).json(FormMapper.fromInstanceEntityToDto(instance));
     })
     .catch((err) => res.status(400).json({ error: err }));
+}
+
+export function getInstancesRouter(
+  req: Request,
+  res: Response,
+  service: FormInstanceService
+) {
+  const name: string = req.query.formName.toString();
+  return service
+    .getInstances(name)
+    .then((instances: FormInstance[]) =>
+      instances.map((instance: FormInstance) =>
+        FormMapper.fromInstanceEntityToDto(instance)
+      )
+    )
+    .then((dtos: GetFormInstanceDto[]) => res.status(200).json(dtos))
+    .catch((err) => {
+      res.status(400).json({ error: err });
+    });
 }
 
 export function createRouter(
@@ -75,7 +95,8 @@ export function insertValue(
 }
 
 export default {
-  getByNameRouter,
+  getRouter,
+  getInstancesRouter,
   createRouter,
   insertValue,
 };

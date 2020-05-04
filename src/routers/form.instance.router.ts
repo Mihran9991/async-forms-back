@@ -18,7 +18,15 @@ export class FormInstanceRouter {
       ValidationMid.getInstanceParams(),
       ValidationMid.validate,
       (req: Request, res: Response) =>
-        FormInstanceRest.getByNameRouter(req, res, service)
+        FormInstanceRest.getRouter(req, res, service)
+    );
+    router.get(
+      `${BASE_URL}/getByFormName`,
+      [authMiddleware],
+      ValidationMid.getFormInstancesParams(),
+      ValidationMid.validate,
+      (req: Request, res: Response) =>
+        FormInstanceRest.getInstancesRouter(req, res, service)
     );
     router.post(
       `${BASE_URL}/create`,

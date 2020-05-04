@@ -11,7 +11,7 @@ import { Nullable } from "../types/main.types";
 export function getRouter(req: Request, res: Response, service: FormService) {
   const name: string = req.query.name.toString();
   return service
-    .getByName(name)
+    .get(name)
     .then((form: Nullable<Form>) => {
       if (!form) {
         throw `Form with name: ${name} not found`;
@@ -54,8 +54,7 @@ export function createRouter(
     .then(() => {
       res.status(200).json({ message: "Form created successfully" });
     })
-    .catch((err) => {
-      console.log("ERROR CREATING FORM", err);
+    .catch(() => {
       res
         .status(400)
         .json({ error: `Error creating form, maybe it already exists?` });

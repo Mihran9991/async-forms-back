@@ -43,6 +43,10 @@ export const getFormParams = () => {
   return [query("name").notEmpty({ ignore_whitespace: true })];
 };
 
+export const getFormInstancesParams = () => {
+  return [query("formName").notEmpty({ ignore_whitespace: true })];
+};
+
 export const getInstanceParams = () => {
   return [
     query("formName").notEmpty({ ignore_whitespace: true }),
@@ -67,4 +71,5 @@ export default {
   editProfileForm,
   getFormParams,
   getInstanceParams,
+  getFormInstancesParams,
 };

@@ -13,8 +13,9 @@ URL Mappings
 - Get form: /form/get
 - Get all forms: /form/getAll
 - Create form: /form/create
+- Get form instances: /form/instance/getByFormName
 - Create form instance: /form/instance/create
-- Insert value into instance: /form/value/insert
+- Insert value into instance: /form/instance/insert
 ---
 
 ## Quick Start

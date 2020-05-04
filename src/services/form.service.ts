@@ -33,7 +33,7 @@ export class FormService {
     this.tableService = tableService;
   }
 
-  public getByName(name: string): Promise<Nullable<Form>> {
+  public get(name: string): Promise<Nullable<Form>> {
     return this.repository.getByName(toUnderscoreCase(name));
   }
 

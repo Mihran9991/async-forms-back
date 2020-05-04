@@ -23,18 +23,27 @@ export class FormInstanceService {
     this.tableService = tableService;
   }
 
-  public getByName(dto: InstanceDto): Promise<Nullable<FormInstance>> {
-    return this.formService
-      .getByName(dto.formName)
-      .then((form: Nullable<Form>) => {
-        if (!form) {
-          throw `Form with name: ${dto.formName} not found`;
-        }
-        return this.tableService.getAs<FormInstance>(
-          getInstancesTableName(form.sysName),
-          QueryUtils.whereName(dto.instanceName)
-        );
-      });
+  public get(dto: InstanceDto): Promise<Nullable<FormInstance>> {
+    return this.formService.get(dto.formName).then((form: Nullable<Form>) => {
+      if (!form) {
+        throw `Form with name: ${dto.formName} not found`;
+      }
+      return this.tableService.getAs<FormInstance>(
+        getInstancesTableName(form.sysName),
+        QueryUtils.whereName(dto.instanceName)
+      );
+    });
+  }
+
+  public getInstances(name: string): Promise<FormInstance[]> {
+    return this.formService.get(name).then((form: Nullable<Form>) => {
+      if (!form) {
+        throw `Form with name: ${name} not found`;
+      }
+      return this.tableService.getMany<FormInstance>(
+        getInstancesTableName(form.sysName)
+      );
+    });
   }
 
   public create(
@@ -42,7 +51,7 @@ export class FormInstanceService {
     ownerUUID: string
   ): Promise<Nullable<FormInstance>> {
     return this.formService
-      .getByName(dto.formName)
+      .get(dto.formName)
       .then((form: Nullable<Form>) => {
         if (!form) {
           throw `Form with name: ${dto.formName} not found`;
@@ -53,7 +62,7 @@ export class FormInstanceService {
           QueryUtils.insertNameAndOwnerId(dto.instanceName, ownerUUID)
         );
       })
-      .then(() => this.getByName(dto));
+      .then(() => this.get(dto));
   }
 
   public insertValue(
@@ -61,12 +70,12 @@ export class FormInstanceService {
     ownerUUID: string
   ): Promise<object> {
     return this.formService
-      .getByName(dto.formName)
+      .get(dto.formName)
       .then((form: Nullable<Form>) => {
         if (!form) {
           throw `Form with name: ${dto.formName} not found`;
         }
-        return Promise.all([form, this.getByName(dto)]);
+        return Promise.all([form, this.get(dto)]);
       })
       .then((values) => {
         const form: Form = values[0] as Form;

@@ -21,11 +21,11 @@ export class TableService {
 
   public getMany<T>(
     tableName: string,
-    attributes: QueryOptionsWithWhere
+    attributes: Nullable<QueryOptionsWithWhere> = null
   ): Promise<T[]> {
     return this.sequelize
       .getQueryInterface()
-      .select(null, tableName, attributes)
+      .select(null, tableName, attributes ?? undefined)
       .then((obj: object) => obj as T[]);
   }
 
