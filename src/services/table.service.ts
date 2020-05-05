@@ -14,12 +14,12 @@ export class TableService {
     tableName: string,
     attributes: QueryOptionsWithWhere
   ): Promise<Nullable<T>> {
-    return this.getMany<T>(tableName, attributes).then((list: T[]) =>
+    return this.getManyAs<T>(tableName, attributes).then((list: T[]) =>
       list.length ? list[0] : null
     );
   }
 
-  public getMany<T>(
+  public getManyAs<T>(
     tableName: string,
     attributes: Nullable<QueryOptionsWithWhere> = null
   ): Promise<T[]> {

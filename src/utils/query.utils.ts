@@ -1,3 +1,19 @@
+export const whereId = (id: number) => {
+  return {
+    where: {
+      id: id,
+    },
+  };
+};
+
+export const whereInstanceId = (instanceId: number) => {
+  return {
+    where: {
+      instanceId: instanceId,
+    },
+  };
+};
+
 export const whereName = (name: string) => {
   return {
     where: {
@@ -22,6 +38,8 @@ export const insertNameAndOwnerId = (name: string, ownerId: string) => {
 };
 
 export default {
+  whereId,
+  whereInstanceId,
   whereName,
   whereSysName,
   insertNameAndOwnerId,

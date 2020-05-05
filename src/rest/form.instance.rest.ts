@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import FormInstanceService from "../services/form.instance.service";
 import UserPrincipal from "../principals/user.principal";
 import FormMapper from "../mappers/form.mappers";
-import { FormInstance, Nullable } from "../types/main.types";
+import { FormInstance } from "../types/main.types";
 import InstanceDto from "../dtos/instance.dto";
 import { InsertInstanceValueDto } from "../dtos/insert.instance.value.dto";
 import GetFormInstanceDto from "../dtos/get.form.instance.dto";
@@ -18,13 +18,8 @@ export function getRouter(
     req.query.formName.toString()
   );
   return service
-    .get(instanceDto)
-    .then((instance: Nullable<FormInstance>) => {
-      if (!instance) {
-        throw `Form instance with name: ${name} not found`;
-      }
-      res.status(200).json(FormMapper.fromInstanceEntityToDto(instance));
-    })
+    .getValues(instanceDto)
+    .then((json: object) => res.status(200).json(json))
     .catch((err) => res.status(400).json({ error: err }));
 }
 

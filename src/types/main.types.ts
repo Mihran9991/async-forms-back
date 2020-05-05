@@ -42,3 +42,25 @@ export interface IdType {
   id: number;
   type: string;
 }
+
+export interface DbFormValue {
+  id: number;
+  instanceId: number;
+  fieldId: number;
+  value: string;
+  ownerId: string;
+  createdAt: Date;
+}
+
+export interface DbNestedFormValue extends DbFormValue {
+  rowId: number;
+}
+
+export interface DbFormField {
+  id: number;
+  name: string;
+  sysName: string;
+  type: string;
+  style: string;
+  optional: string;
+}

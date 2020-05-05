@@ -1,5 +1,12 @@
 import { InsertInstanceValueDto } from "../dtos/insert.instance.value.dto";
-import { FormInstance, IdType, Nullable } from "../types/main.types";
+import {
+  DbFormField,
+  DbFormValue,
+  DbNestedFormValue,
+  FormInstance,
+  IdType,
+  Nullable,
+} from "../types/main.types";
 import Form from "../entities/form.entity";
 import {
   getFieldsTableName,
@@ -13,6 +20,7 @@ import FormService from "./form.service";
 import TableService from "./table.service";
 import InstanceDto from "../dtos/instance.dto";
 import QueryUtils from "../utils/query.utils";
+import JsonUtils, { getFieldJson } from "../utils/json.utils";
 
 export class FormInstanceService {
   private formService: FormService;
@@ -40,10 +48,101 @@ export class FormInstanceService {
       if (!form) {
         throw `Form with name: ${name} not found`;
       }
-      return this.tableService.getMany<FormInstance>(
+      return this.tableService.getManyAs<FormInstance>(
         getInstancesTableName(form.sysName)
       );
     });
+  }
+
+  public getValues(instanceDto: InstanceDto): Promise<object> {
+    return this.formService
+      .get(instanceDto.formName)
+      .then((form: Nullable<Form>) => {
+        if (!form) {
+          throw `Form with name: ${name} not found`;
+        }
+        return Promise.all([
+          form,
+          this.tableService.getAs<FormInstance>(
+            getInstancesTableName(form.sysName),
+            QueryUtils.whereName(instanceDto.instanceName)
+          ),
+        ]);
+      })
+      .then(async (result) => {
+        const form: Form = result[0] as Form;
+        const instance: Nullable<FormInstance> = result[1];
+        if (!instance) {
+          throw `Form instance with name: ${instanceDto.instanceName} not found`;
+        }
+        return Promise.all([
+          form,
+          this.tableService.getManyAs<DbFormField>(
+            getFieldsTableName(form.sysName)
+          ),
+          this.tableService.getManyAs<DbFormValue>(
+            getValuesTableName(form.sysName),
+            QueryUtils.whereInstanceId(instance.id)
+          ),
+        ]);
+      })
+      .then((result) => {
+        const form: Form = result[0];
+        const fields: DbFormField[] = result[1];
+        const values: DbFormValue[] = result[2];
+        return Promise.all([
+          fields
+            .filter((field: DbFormField) => !isTable(field.type))
+            .map((field: DbFormField) => {
+              const value = values
+                .filter((value: DbFormValue) => value.fieldId === field.id)
+                .sort((value1: DbFormValue, value2: DbFormValue) => {
+                  return (
+                    value2.createdAt.valueOf() - value1.createdAt.valueOf()
+                  );
+                })[0] as DbFormValue;
+              return getFieldJson(
+                field.name,
+                value.value,
+                value.ownerId,
+                value.createdAt
+              );
+            }),
+          Promise.all(
+            fields
+              .filter((field: DbFormField) => isTable(field.type))
+              .map((field: DbFormField) => {
+                return this.tableService
+                  .getManyAs<DbFormField>(
+                    getFieldsTableName(form.sysName, field.name)
+                  )
+                  .then((nestedFields: DbFormField[]) => {
+                    return Promise.all([
+                      nestedFields,
+                      this.tableService.getManyAs<DbNestedFormValue>(
+                        getValuesTableName(form.sysName, field.name)
+                      ),
+                    ]);
+                  })
+                  .then((result) => {
+                    const nestedFields: DbFormField[] = result[0];
+                    const nestedValues: DbNestedFormValue[] = result[1];
+                    return JsonUtils.getNestedFieldJson(
+                      field.name,
+                      nestedFields,
+                      nestedValues
+                    );
+                  });
+              })
+          ),
+        ]);
+      })
+      .then((result) => {
+        return JSON.parse(`{
+            ${result[0]},
+            ${result[1]}
+        }`);
+      });
   }
 
   public create(
