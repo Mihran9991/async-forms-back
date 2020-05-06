@@ -1,4 +1,8 @@
-import { DbFormField, DbNestedFormValue } from "../types/main.types";
+import {
+  DbFormField,
+  DbFormValue,
+  DbNestedFormValue,
+} from "../types/main.types";
 
 export const getFieldJson = (
   fieldName: string,
@@ -14,16 +18,46 @@ export const getNestedFieldJson = (
   nestedFields: DbFormField[],
   nestedValues: DbNestedFormValue[]
 ): string => {
-  return `"${fieldName}": { "fields": { ${nestedFields.map(
-    (field: DbFormField) => {
-      const value = nestedValues
-        .filter((value: DbNestedFormValue) => value.fieldId === field.id)
-        .sort((value1: DbNestedFormValue, value2: DbNestedFormValue) => {
-          return value2.createdAt.valueOf() - value1.createdAt.valueOf();
-        })[0] as DbNestedFormValue;
-      return `"${field.name}": { "value": "${value.value}", "owner": "${value.ownerId}", "rowId": "${value.rowId}", "createdAt": "${value.createdAt}" }`;
-    }
-  )} } }`;
+  console.log(groupByRowId(nestedValues));
+  return `"${fieldName}": {
+    "fields": [
+      ${groupByRowId(nestedValues).map((result) => {
+        const rowId = result[0] as number;
+        const values = result[1] as DbNestedFormValue[];
+        const strings = nestedFields.map((field: DbFormField) => {
+          const sorted: DbFormValue[] = values
+            .filter((value: DbNestedFormValue) => value.fieldId === field.id)
+            .sort(
+              (value1: DbFormValue, value2: DbFormValue) =>
+                value2.createdAt.valueOf() - value1.createdAt.valueOf()
+            );
+          const value: DbFormValue = sorted[0];
+          return getFieldJson(
+            field.name,
+            value.value,
+            value.ownerId,
+            value.createdAt
+          );
+        });
+        return `{
+            "rowId": ${rowId},
+            ${strings}
+          }`;
+      })}
+    ]
+  }`;
+};
+
+const groupByRowId = (values: DbNestedFormValue[]) => {
+  const rowIds: number[] = Array.from(
+    new Set(values.map((value) => value.rowId)).values()
+  );
+  return rowIds.map((rowId: number) => {
+    return [
+      rowId,
+      values.filter((value: DbNestedFormValue) => value.rowId === rowId),
+    ];
+  });
 };
 
 export default {

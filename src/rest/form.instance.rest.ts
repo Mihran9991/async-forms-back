@@ -82,11 +82,7 @@ export function insertValue(
     .then(() => {
       res.status(200).json("Value inserted successfully");
     })
-    .catch(() =>
-      res
-        .status(400)
-        .json({ error: `Error inserting value, maybe field doesn't exist?` })
-    );
+    .catch((err) => res.status(400).json({ error: err }));
 }
 
 export default {
