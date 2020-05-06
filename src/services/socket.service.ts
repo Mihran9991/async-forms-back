@@ -1,41 +1,59 @@
-import socketIO from "socket.io";
-import express from "express";
-import SocketConstants from "../constants/socket.events.constants";
+import io from "socket.io";
+import jwtAuth from "socketio-jwt-auth";
 
-class SocketIOWrapper {
-  private static instance: SocketIOWrapper;
+import socketConstants from "../constants/socket.events.constants";
+import { ISocketIO } from "../types/main.types";
 
-  public static getInstance(): SocketIOWrapper {
-    if (!SocketIOWrapper.instance) {
-      SocketIOWrapper.instance = new SocketIOWrapper();
-    }
+class Socket implements ISocketIO {
+  private io: any;
 
-    return SocketIOWrapper.instance;
+  constructor(server: any) {
+    this.io = io.listen(server);
   }
 
-  public connect(app: express.Application): Promise<void> {
-    const io = socketIO(app);
-    io.on("connection", (socket) => {
-      console.log("New socket connection has been established!", socket.id);
-      /**
-       * @param data {Object}
-       * @description - broadcast @param data from backend,
-       *  because there may be some cases that the @param data should be processed
-       *  and then broadcasted
-       */
-      socket.on(SocketConstants.FORM_FIELD_CHANGE, (data: Object) => {
-        console.log(SocketConstants.FORM_FIELD_CHANGE, data);
-        socket.broadcast.emit(SocketConstants.FORM_FIELD_CHANGE, data);
+  public init(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.io.on("connection", (socket: io.Socket) => {
+        console.log("New socket connection has been established!", socket.id);
+
+        this.disableField(socket);
+        this.enableField(socket);
+        this.deleteTableFieldRow(socket);
+
+        return resolve();
       });
 
-      socket.on(SocketConstants.FORM_FIELD_FINISH_CHANGE, (data: Object) => {
-        console.log(SocketConstants.FORM_FIELD_FINISH_CHANGE, data);
-        socket.broadcast.emit(SocketConstants.FORM_FIELD_FINISH_CHANGE, data);
+      this.io.on("connect_error", (err: any) => {
+        return reject(err);
       });
     });
+  }
 
-    return Promise.resolve();
+  private deleteTableFieldRow(socket: io.Socket) {}
+
+  private disableField(socket: io.Socket) {
+    socket.on(socketConstants.START_FORM_FIELD_CHANGE, (data: Object) => {
+      console.log(socketConstants.START_FORM_FIELD_CHANGE, data);
+
+      socket.broadcast.emit(socketConstants.DISABLE_FORM_FIELD, data);
+    });
+  }
+
+  private enableField(socket: io.Socket) {
+    socket.on(socketConstants.FINISH_FORM_FIELD_CHANGE, (data: Object) => {
+      console.log(socketConstants.FINISH_FORM_FIELD_CHANGE, data);
+
+      socket.broadcast.emit(socketConstants.ENABLE_FORM_FIELD, data);
+    });
+  }
+
+  private deleteField(socket: io.Socket) {
+    socket.on(socketConstants.DELETE_FORM_FIELD, (data: object) => {
+      console.log(socketConstants.DELETE_FORM_FIELD, data);
+
+      socket.broadcast.emit(socketConstants.DELETE_FORM_FIELD, data);
+    });
   }
 }
 
-export default SocketIOWrapper;
+export default Socket;

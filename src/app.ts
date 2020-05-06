@@ -1,4 +1,5 @@
 import express from "express";
+import http from "http";
 import SocketIO from "./services/socket.service";
 import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
@@ -31,12 +32,15 @@ import AppConfig from "./configs/app.config";
 import DbConfig from "./configs/db.config";
 import CloudConfig from "./configs/cloud.config";
 
+import { ISocketIO } from "./types/main.types";
+
 const router = express.Router();
 
 class App {
   private app: express.Application;
   private server: any;
   private sequelize: Sequelize;
+  private io: ISocketIO;
 
   private authRouter: AuthRouter;
   private userRouter: UserRouter;
@@ -57,6 +61,8 @@ class App {
 
   constructor() {
     this.initApp();
+    this.initServer();
+    this.initSocketIO();
     this.initCloudinary();
     this.initSequelize();
     this.initRepos();
@@ -70,6 +76,26 @@ class App {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(cors());
     this.app.use(morgan("combined"));
+  }
+
+  public initServer() {
+    this.server = new http.Server(this.app);
+    this.server.listen(AppConfig.PORT, () => {
+      console.log(`listening on port ${AppConfig.PORT}`);
+    });
+  }
+
+  public initSocketIO() {
+    console.log("Initiating socketIO...");
+    this.io = new SocketIO(this.server);
+    this.io
+      .init()
+      .then(() => {
+        console.log("SokcetIO initiated successfully");
+      })
+      .catch((err) => {
+        console.log("Socket connection error", err);
+      });
   }
 
   public initCloudinary() {
@@ -139,16 +165,6 @@ class App {
     this.app.use("/", router);
     console.log("Routers initiated successfully");
   }
-
-  public async start() {
-    console.log(`Initiating server, starting app on port ${AppConfig.PORT}...`);
-    this.server = this.app.listen(AppConfig.PORT);
-    console.log(`Server initiated successfully`);
-    console.log(`Connecting sequelize to server...`);
-    await SocketIO.getInstance().connect(this.server);
-    console.log("Sequelize connected successfully");
-    console.log(`App successfully started on port ${AppConfig.PORT}`);
-  }
 }
 
-new App().start();
+new App();

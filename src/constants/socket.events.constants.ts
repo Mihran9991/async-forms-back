@@ -1,7 +1,13 @@
-export const FORM_FIELD_CHANGE = "form-field-change";
-export const FORM_FIELD_FINISH_CHANGE = "form-field-finish-change";
+export const START_FORM_FIELD_CHANGE = "start-form-field-change";
+export const FINISH_FORM_FIELD_CHANGE = "finish-form-field-change";
+export const DISABLE_FORM_FIELD = "disable-form-field";
+export const ENABLE_FORM_FIELD = "enable-form-field";
+export const DELETE_FORM_FIELD = "delete-form-field";
 
 export default {
-  FORM_FIELD_CHANGE,
-  FORM_FIELD_FINISH_CHANGE,
+  START_FORM_FIELD_CHANGE,
+  FINISH_FORM_FIELD_CHANGE,
+  DISABLE_FORM_FIELD,
+  ENABLE_FORM_FIELD,
+  DELETE_FORM_FIELD,
 };

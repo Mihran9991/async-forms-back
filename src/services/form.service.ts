@@ -9,7 +9,6 @@ export class FormService {
   }
 
   public create(dto: FormDto) {
-    console.log("Form Dto", dto);
     return Promise.resolve();
   }
 }
