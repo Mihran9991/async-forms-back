@@ -62,12 +62,12 @@ class App {
   constructor() {
     this.initApp();
     this.initServer();
-    this.initSocketIO();
     this.initCloudinary();
     this.initSequelize();
     this.initRepos();
     this.initServices();
     this.initRouters();
+    this.initSocketIO();
   }
 
   public initApp() {
@@ -87,7 +87,7 @@ class App {
 
   public initSocketIO() {
     console.log("Initiating socketIO...");
-    this.io = new SocketIO(this.server);
+    this.io = new SocketIO(this.server, this.userService);
     this.io
       .init()
       .then(() => {

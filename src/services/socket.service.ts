@@ -3,23 +3,26 @@ import jwtAuth from "socketio-jwt-auth";
 
 import socketConstants from "../constants/socket.events.constants";
 import { ISocketIO } from "../types/main.types";
+import { JWT_SECRET } from "../configs/auth.config";
+import UserService from "./user.service";
 
 class Socket implements ISocketIO {
   private io: any;
+  private userService: UserService;
 
-  constructor(server: any) {
+  public constructor(server: any, userService: UserService) {
     this.io = io.listen(server);
+    this.userService = userService;
+    this.authenticateSocket();
   }
 
   public init(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.io.on("connection", (socket: io.Socket) => {
-        console.log("New socket connection has been established!", socket.id);
-
         this.disableField(socket);
         this.enableField(socket);
-        this.deleteTableFieldRow(socket);
 
+        console.log("New socket connection has been established!", socket.id);
         return resolve();
       });
 
@@ -29,31 +32,54 @@ class Socket implements ISocketIO {
     });
   }
 
-  private deleteTableFieldRow(socket: io.Socket) {}
-
-  private disableField(socket: io.Socket) {
+  private disableField(socket: io.Socket): void {
     socket.on(socketConstants.START_FORM_FIELD_CHANGE, (data: Object) => {
       console.log(socketConstants.START_FORM_FIELD_CHANGE, data);
+      //TODO:: check, if the field has owner in the redis
 
       socket.broadcast.emit(socketConstants.DISABLE_FORM_FIELD, data);
     });
   }
 
-  private enableField(socket: io.Socket) {
+  private enableField(socket: io.Socket): void {
     socket.on(socketConstants.FINISH_FORM_FIELD_CHANGE, (data: Object) => {
       console.log(socketConstants.FINISH_FORM_FIELD_CHANGE, data);
-
       socket.broadcast.emit(socketConstants.ENABLE_FORM_FIELD, data);
     });
   }
 
-  private deleteField(socket: io.Socket) {
-    socket.on(socketConstants.DELETE_FORM_FIELD, (data: object) => {
-      console.log(socketConstants.DELETE_FORM_FIELD, data);
+  private authenticateSocket(): void {
+    this.io.use(
+      jwtAuth.authenticate(
+        {
+          secret: JWT_SECRET,
+          algorithm: "HS256",
+        },
+        (payload, done) => {
+          this.userService
+            .findByUUID(payload.userId)
+            .then((user) => {
+              if (!user) {
+                return done(null, false, "User does not exist");
+              }
 
-      socket.broadcast.emit(socketConstants.DELETE_FORM_FIELD, data);
-    });
+              return done(null, user);
+            })
+            .catch((err) => {
+              return done(err);
+            });
+        }
+      )
+    );
   }
+
+  // private deleteField(socket: io.Socket): void {
+  //   socket.on(socketConstants.DELETE_FORM_FIELD, (data: object) => {
+  //     console.log(socketConstants.DELETE_FORM_FIELD, data);
+
+  //     socket.broadcast.emit(socketConstants.DELETE_FORM_FIELD, data);
+  //   });
+  // }
 }
 
 export default Socket;
