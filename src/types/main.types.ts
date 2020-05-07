@@ -7,19 +7,60 @@ export interface TokenType {
   timestamp: number;
 }
 
-export interface FormColumn {
-  [key: string]: { type: string; uid: string };
+export interface FormField {
+  name: string;
+  type: FormFieldType;
+  style: string;
+  optional: boolean;
 }
 
-export interface FormRow {
-  [key: string]: {
-    value: string | [{ key: string; value: string }];
-    type: string;
-  };
+export interface FormFieldType {
+  name: string;
+  values: Nullable<string[]>;
+  fields: Nullable<FormField[]>;
 }
 
-export interface FormColumns {
-  [key: string]: FormColumn;
+export interface FormInstance {
+  id: number;
+  name: string;
+  ownerId: string;
 }
 
-export type FormRows = FormRow[];
+export interface FormInsertValueField {
+  name: string;
+  field: Nullable<FormInsertValueNestedField>;
+  value: Nullable<string>;
+}
+
+export interface FormInsertValueNestedField {
+  rowId: number;
+  name: string;
+  value: string;
+}
+
+export interface IdType {
+  id: number;
+  type: string;
+}
+
+export interface DbFormValue {
+  id: number;
+  instanceId: number;
+  fieldId: number;
+  value: string;
+  ownerId: string;
+  createdAt: Date;
+}
+
+export interface DbNestedFormValue extends DbFormValue {
+  rowId: number;
+}
+
+export interface DbFormField {
+  id: number;
+  name: string;
+  sysName: string;
+  type: string;
+  style: string;
+  optional: string;
+}
