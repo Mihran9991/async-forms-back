@@ -23,7 +23,7 @@ export function getAllRouter(
 export function getRouter(req: Request, res: Response) {
   const principal: UserPrincipal = res.locals.userPrincipal;
   const dto = UserMappers.fromPrincipalToDto(principal);
-  res.status(200).json({ user: dto });
+  return res.status(200).json({ user: dto });
 }
 
 export function editRouter(

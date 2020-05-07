@@ -9,7 +9,7 @@ import FormDto from "../dtos/form.dto";
 import { Nullable } from "../types/main.types";
 
 export function getRouter(req: Request, res: Response, service: FormService) {
-  const name: string = req.query.name.toString();
+  const name: string = req.query.formName.toString();
   return service
     .get(name)
     .then((form: Nullable<Form>) => {
@@ -42,7 +42,7 @@ export function createRouter(
 ) {
   const principal: UserPrincipal = res.locals.userPrincipal;
   const formDto: CreateFormDto = new CreateFormDto(
-    req.body.name,
+    req.body.formName,
     req.body.fields,
     req.body.style,
     req.body.optional,

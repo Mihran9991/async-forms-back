@@ -49,7 +49,7 @@ export function createRouter(
 ) {
   const principal: UserPrincipal = res.locals.userPrincipal;
   const instanceDto: InstanceDto = new InstanceDto(
-    req.body.name,
+    req.body.instanceName,
     req.body.formName
   );
   return service

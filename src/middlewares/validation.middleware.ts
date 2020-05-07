@@ -1,56 +1,75 @@
 import { NextFunction, Request, Response } from "express";
-import { check, query, validationResult } from "express-validator";
+import { body, query, validationResult } from "express-validator";
 
 import RegexConstants from "../constants/regex.constants";
 import multerMiddleware from "./multer.middleware";
 
 export const registerForm = () => {
   return [
-    check("name").notEmpty({ ignore_whitespace: true }),
-    check("surname").notEmpty({ ignore_whitespace: true }),
-    check("email").isEmail(),
-    check("password").matches(RegexConstants.PASSWORD_REGEX),
+    body("name").notEmpty({ ignore_whitespace: true }),
+    body("surname").notEmpty({ ignore_whitespace: true }),
+    body("email").isEmail(),
+    body("password").matches(RegexConstants.PASSWORD_REGEX),
   ];
 };
 
 export const loginForm = () => {
   return [
-    check("email").isEmail(),
-    check("password").matches(RegexConstants.PASSWORD_REGEX),
+    body("email").isEmail(),
+    body("password").matches(RegexConstants.PASSWORD_REGEX),
   ];
 };
 
 export const forgotSendForm = () => {
-  return [check("email").isEmail()];
+  return [body("email").isEmail()];
 };
 
 export const forgotResetForm = () => {
   return [
-    check("requestId").notEmpty({ ignore_whitespace: true }),
-    check("newPassword").matches(RegexConstants.PASSWORD_REGEX),
+    body("requestId").notEmpty({ ignore_whitespace: true }),
+    body("newPassword").matches(RegexConstants.PASSWORD_REGEX),
   ];
 };
 
 export const editProfileForm = () => {
   return [
     multerMiddleware.singleOrNone("picture"),
-    check("name").notEmpty({ ignore_whitespace: true }),
-    check("surname").notEmpty({ ignore_whitespace: true }),
+    body("name").notEmpty({ ignore_whitespace: true }),
+    body("surname").notEmpty({ ignore_whitespace: true }),
   ];
 };
 
 export const getFormParams = () => {
-  return [query("name").notEmpty({ ignore_whitespace: true })];
+  return [query("formName").notEmpty({ ignore_whitespace: true })];
+};
+
+export const createFormParams = () => {
+  return [body("formName").notEmpty({ ignore_whitespace: true })];
+};
+
+export const getFormInstanceParams = () => {
+  return [
+    query("formName").notEmpty({ ignore_whitespace: true }),
+    query("instanceName").notEmpty({ ignore_whitespace: true }),
+  ];
 };
 
 export const getFormInstancesParams = () => {
   return [query("formName").notEmpty({ ignore_whitespace: true })];
 };
 
-export const getInstanceParams = () => {
+export const createFormInstanceParams = () => {
   return [
-    query("formName").notEmpty({ ignore_whitespace: true }),
-    query("instanceName").notEmpty({ ignore_whitespace: true }),
+    body("formName").notEmpty({ ignore_whitespace: true }),
+    body("instanceName").notEmpty({ ignore_whitespace: true }),
+  ];
+};
+
+export const insertIntoFormInstanceParams = () => {
+  return [
+    body("formName").notEmpty({ ignore_whitespace: true }),
+    body("instanceName").notEmpty({ ignore_whitespace: true }),
+    body("field").notEmpty({ ignore_whitespace: true }),
   ];
 };
 
@@ -70,6 +89,9 @@ export default {
   forgotResetForm,
   editProfileForm,
   getFormParams,
-  getInstanceParams,
+  createFormParams,
+  getFormInstanceParams,
   getFormInstancesParams,
+  createFormInstanceParams,
+  insertIntoFormInstanceParams,
 };

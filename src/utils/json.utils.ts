@@ -52,7 +52,7 @@ export const getNestedFieldJson = (
 
 const groupByRowId = (values: DbNestedFormValue[]) => {
   const rowIds: string[] = Array.from(
-    new Set(values.map((value) => value.rowId)).values()
+    new Set(values.map((value: DbNestedFormValue) => value.rowId)).values()
   );
   return rowIds.map((rowId: string) => {
     return [
