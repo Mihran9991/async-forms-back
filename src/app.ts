@@ -88,14 +88,7 @@ class App {
   public initSocketIO() {
     console.log("Initiating socketIO...");
     this.io = new SocketIO(this.server, this.userService);
-    this.io
-      .init()
-      .then(() => {
-        console.log("SokcetIO initiated successfully");
-      })
-      .catch((err) => {
-        console.log("Socket connection error", err);
-      });
+    this.io.init();
   }
 
   public initCloudinary() {
@@ -114,6 +107,7 @@ class App {
       username: DbConfig.USERNAME,
       password: DbConfig.PASSWORD,
       database: DbConfig.DATABASE,
+      logging: false,
     });
     this.sequelize.addModels([User, ForgotRequest, Form]);
     this.sequelize.sync();

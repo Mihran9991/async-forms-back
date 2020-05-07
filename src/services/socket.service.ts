@@ -5,10 +5,12 @@ import socketConstants from "../constants/socket.events.constants";
 import { ISocketIO } from "../types/main.types";
 import { JWT_SECRET } from "../configs/auth.config";
 import UserService from "./user.service";
+import RedisService from "./redis.service";
 
 class Socket implements ISocketIO {
   private io: any;
   private userService: UserService;
+  private redisService: RedisService = new RedisService();
 
   public constructor(server: any, userService: UserService) {
     this.io = io.listen(server);
@@ -16,19 +18,18 @@ class Socket implements ISocketIO {
     this.authenticateSocket();
   }
 
-  public init(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.io.on("connection", (socket: io.Socket) => {
-        this.disableField(socket);
-        this.enableField(socket);
+  public init(): void {
+    this.redisService.init();
 
-        console.log("New socket connection has been established!", socket.id);
-        return resolve();
-      });
+    this.io.on("connection", (socket: io.Socket) => {
+      this.disableField(socket);
+      this.enableField(socket);
 
-      this.io.on("connect_error", (err: any) => {
-        return reject(err);
-      });
+      console.log("New socket connection has been established!", socket.id);
+    });
+
+    this.io.on("connect_error", (err: any) => {
+      console.log("Socket connection error", err);
     });
   }
 
@@ -72,14 +73,6 @@ class Socket implements ISocketIO {
       )
     );
   }
-
-  // private deleteField(socket: io.Socket): void {
-  //   socket.on(socketConstants.DELETE_FORM_FIELD, (data: object) => {
-  //     console.log(socketConstants.DELETE_FORM_FIELD, data);
-
-  //     socket.broadcast.emit(socketConstants.DELETE_FORM_FIELD, data);
-  //   });
-  // }
 }
 
 export default Socket;

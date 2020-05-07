@@ -3,7 +3,7 @@ export type GeneratedTokenType = TokenType & string;
 export type Nullable<T> = T | null;
 
 export interface ISocketIO {
-  init(): Promise<void>;
+  init(): void;
 }
 
 export interface InitialSocketData {
