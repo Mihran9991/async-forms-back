@@ -33,7 +33,7 @@ export interface FormInsertValueField {
 }
 
 export interface FormInsertValueNestedField {
-  rowId: number;
+  rowId: string;
   name: string;
   value: string;
 }
@@ -53,7 +53,7 @@ export interface DbFormValue {
 }
 
 export interface DbNestedFormValue extends DbFormValue {
-  rowId: number;
+  rowId: string;
 }
 
 export interface DbFormField {

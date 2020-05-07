@@ -18,12 +18,8 @@ export class FormRepository {
     });
   }
 
-  public getAllByOwner(uuid: string): Promise<Form[]> {
-    return this.repository.findAll({
-      where: {
-        ownerId: uuid,
-      },
-    });
+  public getAll(): Promise<Form[]> {
+    return this.repository.findAll();
   }
 
   public create(form: Form): Promise<Form> {

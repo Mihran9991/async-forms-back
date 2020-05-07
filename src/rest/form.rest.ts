@@ -26,9 +26,8 @@ export function getAllRouter(
   res: Response,
   service: FormService
 ) {
-  const principal: UserPrincipal = res.locals.userPrincipal;
   return service
-    .getAllByOwner(principal.uuid)
+    .getAll()
     .then((forms: Form[]) =>
       forms.map((form: Form) => FormMapper.fromEntityToDto(form))
     )

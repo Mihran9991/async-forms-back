@@ -37,8 +37,8 @@ export class FormService {
     return this.repository.getByName(toUnderscoreCase(name));
   }
 
-  public getAllByOwner(uuid: string): Promise<Form[]> {
-    return this.repository.getAllByOwner(uuid);
+  public getAll(): Promise<Form[]> {
+    return this.repository.getAll();
   }
 
   public create(dto: CreateFormDto, ownerUUID: string): Promise<void> {
