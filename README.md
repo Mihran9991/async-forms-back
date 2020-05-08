@@ -5,11 +5,18 @@ URL Mappings
 
 - Register: /register
 - Login: /login
-- Get all users: /user/getAll
 - Get user: /user/get
+- Get all users: /user/getAll
 - Edit user info: /user/edit
 - Forgot password send: /forgot/send
 - Forgot password reset: /forgot/reset
+- Get form: /form/get
+- Get all forms: /form/getAll
+- Get form instance: /form/instance/get
+- Get form instances: /form/instance/getAll
+- Create form: /form/create
+- Create form instance: /form/instance/create
+- Insert value into instance: /form/instance/insert
 ---
 
 ## Quick Start

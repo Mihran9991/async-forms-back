@@ -1,5 +1,7 @@
 import { Repository } from "sequelize-typescript";
+
 import Form from "../entities/form.entity";
+import { Nullable } from "../types/main.types";
 
 export class FormRepository {
   private repository: Repository<Form>;
@@ -8,9 +10,20 @@ export class FormRepository {
     this.repository = repository;
   }
 
+  public getByName(name: string): Promise<Nullable<Form>> {
+    return this.repository.findOne({
+      where: {
+        sysName: name,
+      },
+    });
+  }
+
+  public getAll(): Promise<Form[]> {
+    return this.repository.findAll();
+  }
+
   public create(form: Form): Promise<Form> {
-    return Promise.resolve(form);
-    //return form.save();
+    return form.save();
   }
 }
 

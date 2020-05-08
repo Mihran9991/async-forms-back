@@ -1,6 +1,5 @@
 import express from "express";
 import http from "http";
-import SocketIO from "./services/socket.service";
 import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -10,19 +9,23 @@ import cloudinary from "cloudinary";
 import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
 import FormRouter from "./routers/form.router";
+import FormInstanceRouter from "./routers/form.instance.router";
 import ForgotPasswordRouter from "./routers/forgot.password.router";
 
 import UserRepository from "./repositories/user.repository";
 import FormRepository from "./repositories/form.repository";
 import ForgotRequestRepository from "./repositories/forgot.request.repository";
 
+import SocketIO from "./services/socket.service";
 import UserService from "./services/user.service";
 import AuthService from "./services/auth.service";
 import EmailService from "./services/email.service";
 import ForgotRequestService from "./services/forgot.request.service";
 import ForgotPasswordService from "./services/forgot.password.service";
 import FormService from "./services/form.service";
+import FormInstanceService from "./services/form.instance.service";
 import CloudService from "./services/cloud.service";
+import TableService from "./services/table.service";
 
 import User from "./entities/user.entity";
 import ForgotRequest from "./entities/forgot.request.entity";
@@ -46,13 +49,16 @@ class App {
   private userRouter: UserRouter;
   private forgotPasswordRouter: ForgotPasswordRouter;
   private formRouter: FormRouter;
+  private formInstanceRouter: FormInstanceRouter;
 
   private authService: AuthService;
   private emailService: EmailService;
   private forgotPasswordService: ForgotPasswordService;
   private userService: UserService;
   private forgotRequestService: ForgotRequestService;
+  private tableService: TableService;
   private formService: FormService;
+  private formInstanceService: FormInstanceService;
   private cloudService: CloudService;
 
   private userRepository: UserRepository;
@@ -134,7 +140,6 @@ class App {
     this.cloudService = new CloudService();
     this.userService = new UserService(this.userRepository, this.cloudService);
     this.authService = new AuthService(this.userService);
-    this.formService = new FormService(this.formRepository);
     this.forgotRequestService = new ForgotRequestService(
       this.forgotRequestRepository,
       this.userService
@@ -144,6 +149,16 @@ class App {
       this.userService,
       this.emailService
     );
+    this.tableService = new TableService(this.sequelize);
+    this.formService = new FormService(
+      this.formRepository,
+      this.userService,
+      this.tableService
+    );
+    this.formInstanceService = new FormInstanceService(
+      this.formService,
+      this.tableService
+    );
     console.log("Services initiated successfully");
   }
 
@@ -151,10 +166,14 @@ class App {
     console.log("Initiating routers...");
     this.authRouter = new AuthRouter(router, this.authService);
     this.userRouter = new UserRouter(router, this.userService);
-    this.formRouter = new FormRouter(router, this.formService);
     this.forgotPasswordRouter = new ForgotPasswordRouter(
       router,
       this.forgotPasswordService
+    );
+    this.formRouter = new FormRouter(router, this.formService);
+    this.formInstanceRouter = new FormInstanceRouter(
+      router,
+      this.formInstanceService
     );
     this.app.use("/", router);
     console.log("Routers initiated successfully");
