@@ -3,20 +3,89 @@
 # About
 URL Mappings
 
-- Register: /register
-- Login: /login
-- Get user: /user/get
-- Get all users: /user/getAll
-- Edit user info: /user/edit
-- Forgot password send: /forgot/send
-- Forgot password reset: /forgot/reset
-- Get form: /form/get
-- Get all forms: /form/getAll
-- Get form instance: /form/instance/get
-- Get form instances: /form/instance/getAll
-- Create form: /form/create
-- Create form instance: /form/instance/create
-- Insert value into instance: /form/instance/insert
+- Auth
+    - Register
+        - URL: [/register](http://localhost:3001/register)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - name
+            - surname
+            - email
+            - password
+    - Login
+        - URL: [/login](http://localhost:3001/login)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - email
+            - password
+- User
+    - Get
+        - URL: [/user/get](http://localhost:3001/user/get)
+        - Method: <b>GET</b>
+    - Get all
+        - URL: [/user/getAll](http://localhost:3001/user/getAll)
+        - Method: <b>GET</b>
+    - Edit profile
+        - URL: [/user/edit](http://localhost:3001/user/edit)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - name
+            - surname
+            - picture (file)
+- Forgot Password
+    - Send
+        - URL: [/forgot/send](http://localhost:3001/forgot/send)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - email
+    - Reset
+        - URL: [/forgot/reset](http://localhost:3001/forgot/reset)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - requestId
+            - newPassword
+- Form
+    - Get
+        - URL: [/form/get](http://localhost:3001/form/get)
+        - Method: <b>GET</b>
+        - <b>Query</b> Parameters:
+            - formName
+    - Get all
+        - URL: [/form/getAll](http://localhost:3001/form/getAll)
+        - Method: <b>GET</b>
+    - Create
+        - URL: [/form/create](http://localhost:3001/form/create)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - form
+            - fields
+            - style
+            - optional
+- Form Instance
+    - Get
+        - URL: [/form/instance/get](http://localhost:3001/form/instance/get)
+        - Method: <b>GET</b>
+        - <b>Query</b> Parameters:
+            - formName
+            - instanceName
+    - Get all
+        - URL: [/form/instance/getAll](http://localhost:3001/form/instance/getAll)
+        - Method: <b>GET</b>
+        - <b>Query</b> Parameters:
+            - formName
+    - Create
+        - URL: [/form/instance/create](http://localhost:3001/form/instance/create)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - formName
+            - instanceName
+    - Insert value
+        - URL: [/form/instance/insert](http://localhost:3001/form/instance/insert)
+        - Method: <b>POST</b>
+        - <b>Body</b> Parameters:
+            - formName
+            - instanceName
+            - field
 ---
 
 ## Quick Start

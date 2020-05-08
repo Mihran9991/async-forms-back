@@ -94,18 +94,19 @@ export class FormInstanceService {
           fields
             .filter((field: DbFormField) => !isTable(field.type))
             .map((field: DbFormField) => {
-              const value = values
-                .filter((value: DbFormValue) => value.fieldId === field.id)
-                .sort((value1: DbFormValue, value2: DbFormValue) => {
-                  return (
-                    value2.createdAt.valueOf() - value1.createdAt.valueOf()
-                  );
-                })[0] as DbFormValue;
+              const value: Nullable<DbFormValue> =
+                (values
+                  .filter((value: DbFormValue) => value.fieldId === field.id)
+                  .sort((value1: DbFormValue, value2: DbFormValue) => {
+                    return (
+                      value2.createdAt.valueOf() - value1.createdAt.valueOf()
+                    );
+                  })?.[0] as DbFormValue) ?? null;
               return getFieldJson(
                 field.name,
-                value.value,
-                value.ownerId,
-                value.createdAt
+                value?.value,
+                value?.ownerId,
+                value?.createdAt
               );
             }),
           Promise.all(

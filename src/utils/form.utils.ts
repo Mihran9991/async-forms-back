@@ -169,7 +169,7 @@ export const getInsertValueAttributes = (
   fieldId: number,
   value: string,
   ownerId: string,
-  rowId: Nullable<number> = null
+  rowId: Nullable<string> = null
 ) => {
   const json = {
     instanceId: instanceId,

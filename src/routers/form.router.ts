@@ -27,6 +27,8 @@ export class FormRouter {
     router.post(
       `${BASE_URL}/create`,
       [authMiddleware],
+      ValidationMid.createFormParams(),
+      ValidationMid.validate,
       (req: Request, res: Response) => FormRest.createRouter(req, res, service)
     );
   }
