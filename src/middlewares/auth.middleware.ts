@@ -19,6 +19,6 @@ export default (req: Request, res: Response, next: Function) => {
       return next();
     });
   } catch (_) {
-    return next(ErrorMessages.INVALID_TOKEN);
+    return next(res.status(403).json({ error: ErrorMessages.INVALID_TOKEN }));
   }
 };
