@@ -2,6 +2,18 @@ export type ConfigType = undefined | string;
 export type GeneratedTokenType = TokenType & string;
 export type Nullable<T> = T | null;
 
+export interface FieldDataType {
+  rowId?: Nullable<string>;
+  columnId?: Nullable<string>;
+  formId: Nullable<string>;
+  formName: Nullable<string>;
+  fieldName: Nullable<string>;
+  type: Nullable<string>;
+  instanceName: Nullable<string>;
+  value: Nullable<string>;
+  ownerId: string;
+}
+
 export interface TokenType {
   userId: string;
   timestamp: number;

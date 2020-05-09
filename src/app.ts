@@ -1,4 +1,5 @@
 import express from "express";
+import http from "http";
 import { Sequelize } from "sequelize-typescript";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -9,13 +10,14 @@ import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
 import FormRouter from "./routers/form.router";
 import FormInstanceRouter from "./routers/form.instance.router";
+import FormFieldRouter from "./routers/form.field.router";
 import ForgotPasswordRouter from "./routers/forgot.password.router";
 
 import UserRepository from "./repositories/user.repository";
 import FormRepository from "./repositories/form.repository";
 import ForgotRequestRepository from "./repositories/forgot.request.repository";
 
-import SocketIO from "./services/socket.service";
+import SocketIOService from "./services/socket.service";
 import UserService from "./services/user.service";
 import AuthService from "./services/auth.service";
 import EmailService from "./services/email.service";
@@ -23,8 +25,10 @@ import ForgotRequestService from "./services/forgot.request.service";
 import ForgotPasswordService from "./services/forgot.password.service";
 import FormService from "./services/form.service";
 import FormInstanceService from "./services/form.instance.service";
+import FormFieldService from "./services/form.field.service";
 import CloudService from "./services/cloud.service";
 import TableService from "./services/table.service";
+import RedisService from "./services/redis.service";
 
 import User from "./entities/user.entity";
 import ForgotRequest from "./entities/forgot.request.entity";
@@ -40,12 +44,14 @@ class App {
   private app: express.Application;
   private server: any;
   private sequelize: Sequelize;
+  private io: SocketIOService;
 
   private authRouter: AuthRouter;
   private userRouter: UserRouter;
   private forgotPasswordRouter: ForgotPasswordRouter;
   private formRouter: FormRouter;
   private formInstanceRouter: FormInstanceRouter;
+  private formFieldRouter: FormFieldRouter;
 
   private authService: AuthService;
   private emailService: EmailService;
@@ -54,8 +60,10 @@ class App {
   private forgotRequestService: ForgotRequestService;
   private tableService: TableService;
   private formService: FormService;
+  private formFieldService: FormFieldService;
   private formInstanceService: FormInstanceService;
   private cloudService: CloudService;
+  private redisService: RedisService;
 
   private userRepository: UserRepository;
   private forgotRequestRepository: ForgotRequestRepository;
@@ -63,11 +71,13 @@ class App {
 
   constructor() {
     this.initApp();
+    this.initServer();
     this.initCloudinary();
     this.initSequelize();
     this.initRepos();
     this.initServices();
     this.initRouters();
+    this.initSocketIO();
   }
 
   public initApp() {
@@ -76,6 +86,19 @@ class App {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(cors());
     this.app.use(morgan("combined"));
+  }
+
+  public initServer() {
+    this.server = new http.Server(this.app);
+    this.server.listen(AppConfig.PORT, () => {
+      console.log(`listening on port ${AppConfig.PORT}`);
+    });
+  }
+
+  public initSocketIO() {
+    console.log("Initiating socketIO...");
+    this.io = new SocketIOService(this.server, this.userService);
+    this.io.init();
   }
 
   public initCloudinary() {
@@ -94,6 +117,7 @@ class App {
       username: DbConfig.USERNAME,
       password: DbConfig.PASSWORD,
       database: DbConfig.DATABASE,
+      logging: false,
     });
     this.sequelize.addModels([User, ForgotRequest, Form]);
     this.sequelize.sync();
@@ -135,6 +159,9 @@ class App {
       this.userService,
       this.tableService
     );
+
+    this.redisService = new RedisService();
+    this.formFieldService = new FormFieldService(this.redisService);
     this.formInstanceService = new FormInstanceService(
       this.formService,
       this.tableService
@@ -155,19 +182,11 @@ class App {
       router,
       this.formInstanceService
     );
+    this.formFieldRouter = new FormFieldRouter(router, this.formFieldService);
+
     this.app.use("/", router);
     console.log("Routers initiated successfully");
   }
-
-  public async start() {
-    console.log(`Initiating server, starting app on port ${AppConfig.PORT}...`);
-    this.server = this.app.listen(AppConfig.PORT);
-    console.log(`Server initiated successfully`);
-    console.log(`Connecting sequelize to server...`);
-    await SocketIO.getInstance().connect(this.server);
-    console.log("Sequelize connected successfully");
-    console.log(`App successfully started on port ${AppConfig.PORT}`);
-  }
 }
 
-new App().start();
+new App();
