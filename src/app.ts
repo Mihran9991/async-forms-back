@@ -10,13 +10,14 @@ import AuthRouter from "./routers/auth.router";
 import UserRouter from "./routers/user.router";
 import FormRouter from "./routers/form.router";
 import FormInstanceRouter from "./routers/form.instance.router";
+import FormFieldRouter from "./routers/form.field.router";
 import ForgotPasswordRouter from "./routers/forgot.password.router";
 
 import UserRepository from "./repositories/user.repository";
 import FormRepository from "./repositories/form.repository";
 import ForgotRequestRepository from "./repositories/forgot.request.repository";
 
-import SocketIO from "./services/socket.service";
+import SocketIOService from "./services/socket.service";
 import UserService from "./services/user.service";
 import AuthService from "./services/auth.service";
 import EmailService from "./services/email.service";
@@ -24,8 +25,10 @@ import ForgotRequestService from "./services/forgot.request.service";
 import ForgotPasswordService from "./services/forgot.password.service";
 import FormService from "./services/form.service";
 import FormInstanceService from "./services/form.instance.service";
+import FormFieldService from "./services/form.field.service";
 import CloudService from "./services/cloud.service";
 import TableService from "./services/table.service";
+import RedisService from "./services/redis.service";
 
 import User from "./entities/user.entity";
 import ForgotRequest from "./entities/forgot.request.entity";
@@ -35,21 +38,20 @@ import AppConfig from "./configs/app.config";
 import DbConfig from "./configs/db.config";
 import CloudConfig from "./configs/cloud.config";
 
-import { ISocketIO } from "./types/main.types";
-
 const router = express.Router();
 
 class App {
   private app: express.Application;
   private server: any;
   private sequelize: Sequelize;
-  private io: ISocketIO;
+  private io: SocketIOService;
 
   private authRouter: AuthRouter;
   private userRouter: UserRouter;
   private forgotPasswordRouter: ForgotPasswordRouter;
   private formRouter: FormRouter;
   private formInstanceRouter: FormInstanceRouter;
+  private formFieldRouter: FormFieldRouter;
 
   private authService: AuthService;
   private emailService: EmailService;
@@ -58,8 +60,10 @@ class App {
   private forgotRequestService: ForgotRequestService;
   private tableService: TableService;
   private formService: FormService;
+  private formFieldService: FormFieldService;
   private formInstanceService: FormInstanceService;
   private cloudService: CloudService;
+  private redisService: RedisService;
 
   private userRepository: UserRepository;
   private forgotRequestRepository: ForgotRequestRepository;
@@ -93,7 +97,7 @@ class App {
 
   public initSocketIO() {
     console.log("Initiating socketIO...");
-    this.io = new SocketIO(this.server, this.userService);
+    this.io = new SocketIOService(this.server, this.userService);
     this.io.init();
   }
 
@@ -155,6 +159,9 @@ class App {
       this.userService,
       this.tableService
     );
+
+    this.redisService = new RedisService();
+    this.formFieldService = new FormFieldService(this.redisService);
     this.formInstanceService = new FormInstanceService(
       this.formService,
       this.tableService
@@ -175,6 +182,8 @@ class App {
       router,
       this.formInstanceService
     );
+    this.formFieldRouter = new FormFieldRouter(router, this.formFieldService);
+
     this.app.use("/", router);
     console.log("Routers initiated successfully");
   }

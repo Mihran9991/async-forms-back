@@ -2,12 +2,12 @@ import io from "socket.io";
 import jwtAuth from "socketio-jwt-auth";
 
 import socketConstants from "../constants/socket.events.constants";
-import { ISocketIO } from "../types/main.types";
 import { JWT_SECRET } from "../configs/auth.config";
 import UserService from "./user.service";
 import RedisService from "./redis.service";
+import FormFieldDto from "../dtos/form.fied.dto";
 
-class Socket implements ISocketIO {
+class Socket {
   private io: any;
   private userService: UserService;
   private redisService: RedisService = new RedisService();
@@ -34,19 +34,41 @@ class Socket implements ISocketIO {
   }
 
   private disableField(socket: io.Socket): void {
-    socket.on(socketConstants.START_FORM_FIELD_CHANGE, (data: Object) => {
+    socket.on(socketConstants.START_FORM_FIELD_CHANGE, (data: FormFieldDto) => {
       console.log(socketConstants.START_FORM_FIELD_CHANGE, data);
-      //TODO:: check, if the field has owner in the redis
-
-      socket.broadcast.emit(socketConstants.DISABLE_FORM_FIELD, data);
+      this.redisService
+        .isFieldLocked(data)
+        .then((isLocked) => {
+          if (!isLocked) {
+            this.redisService.lockField(data);
+            socket.broadcast.emit(socketConstants.DISABLE_FORM_FIELD, data);
+          }
+        })
+        .catch(() => {
+          throw `Error during field lock operation: ${data.fieldName}`;
+        });
     });
   }
 
   private enableField(socket: io.Socket): void {
-    socket.on(socketConstants.FINISH_FORM_FIELD_CHANGE, (data: Object) => {
-      console.log(socketConstants.FINISH_FORM_FIELD_CHANGE, data);
-      socket.broadcast.emit(socketConstants.ENABLE_FORM_FIELD, data);
-    });
+    socket.on(
+      socketConstants.FINISH_FORM_FIELD_CHANGE,
+      (data: FormFieldDto) => {
+        console.log(socketConstants.FINISH_FORM_FIELD_CHANGE, data);
+        this.redisService
+          .isFieldLocked(data)
+          .then((isLocked) => {
+            if (isLocked) {
+              this.redisService.unLockField(data);
+              socket.broadcast.emit(socketConstants.ENABLE_FORM_FIELD, data);
+              socket.broadcast.emit(socketConstants.UPDATE_FORM_FIELD, data);
+            }
+          })
+          .catch(() => {
+            throw `Error during field lock operation: ${data.fieldName}`;
+          });
+      }
+    );
   }
 
   private authenticateSocket(): void {

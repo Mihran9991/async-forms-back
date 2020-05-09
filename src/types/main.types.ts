@@ -2,15 +2,16 @@ export type ConfigType = undefined | string;
 export type GeneratedTokenType = TokenType & string;
 export type Nullable<T> = T | null;
 
-export interface ISocketIO {
-  init(): void;
-}
-
-export interface InitialSocketData {
-  rowId: Nullable<string>;
-  columnId: Nullable<string>;
+export interface FieldDataType {
+  rowId?: Nullable<string>;
+  columnId?: Nullable<string>;
   formId: Nullable<string>;
-  instanceId: Nullable<string>;
+  formName: Nullable<string>;
+  fieldName: Nullable<string>;
+  type: Nullable<string>;
+  instanceName: Nullable<string>;
+  value: Nullable<string>;
+  ownerId: string;
 }
 
 export interface TokenType {
