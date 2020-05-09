@@ -76,3 +76,10 @@ export interface DbFormField {
   style: string;
   optional: string;
 }
+
+export interface RedisActiveUser {
+  name: string;
+  pictureUrl: string;
+  uuid: string;
+  email: string;
+}

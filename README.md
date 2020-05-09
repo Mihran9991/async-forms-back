@@ -1,91 +1,96 @@
 # async-forms
 
 # About
+
 URL Mappings
 
 - Auth
-    - Register
-        - URL: [/register](http://localhost:3001/register)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - name
-            - surname
-            - email
-            - password
-    - Login
-        - URL: [/login](http://localhost:3001/login)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - email
-            - password
+  - Register
+    - URL: [/register](http://localhost:3001/register)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - name
+      - surname
+      - email
+      - password
+  - Login
+    - URL: [/login](http://localhost:3001/login)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - email
+      - password
 - User
-    - Get
-        - URL: [/user/get](http://localhost:3001/user/get)
-        - Method: <b>GET</b>
-    - Get all
-        - URL: [/user/getAll](http://localhost:3001/user/getAll)
-        - Method: <b>GET</b>
-    - Edit profile
-        - URL: [/user/edit](http://localhost:3001/user/edit)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - name
-            - surname
-            - picture (file)
+  - Get
+    - URL: [/user/get](http://localhost:3001/user/get)
+    - Method: <b>GET</b>
+  - Get all
+    - URL: [/user/getAll](http://localhost:3001/user/getAll)
+    - Method: <b>GET</b>
+  - Edit profile
+    - URL: [/user/edit](http://localhost:3001/user/edit)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - name
+      - surname
+      - picture (file)
+  - Get active users list
+    - URL: [/user/getActiveUsersList](http://localhost:3001/user/getActiveUsersList)
+    - Method: <b>GET</b>
 - Forgot Password
-    - Send
-        - URL: [/forgot/send](http://localhost:3001/forgot/send)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - email
-    - Reset
-        - URL: [/forgot/reset](http://localhost:3001/forgot/reset)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - requestId
-            - newPassword
+  - Send
+    - URL: [/forgot/send](http://localhost:3001/forgot/send)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - email
+  - Reset
+    - URL: [/forgot/reset](http://localhost:3001/forgot/reset)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - requestId
+      - newPassword
 - Form
-    - Get
-        - URL: [/form/get](http://localhost:3001/form/get)
-        - Method: <b>GET</b>
-        - <b>Query</b> Parameters:
-            - formName
-    - Get all
-        - URL: [/form/getAll](http://localhost:3001/form/getAll)
-        - Method: <b>GET</b>
-    - Create
-        - URL: [/form/create](http://localhost:3001/form/create)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - form
-            - fields
-            - style
-            - optional
+  - Get
+    - URL: [/form/get](http://localhost:3001/form/get)
+    - Method: <b>GET</b>
+    - <b>Query</b> Parameters:
+      - formName
+  - Get all
+    - URL: [/form/getAll](http://localhost:3001/form/getAll)
+    - Method: <b>GET</b>
+  - Create
+    - URL: [/form/create](http://localhost:3001/form/create)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - form
+      - fields
+      - style
+      - optional
 - Form Instance
-    - Get
-        - URL: [/form/instance/get](http://localhost:3001/form/instance/get)
-        - Method: <b>GET</b>
-        - <b>Query</b> Parameters:
-            - formName
-            - instanceName
-    - Get all
-        - URL: [/form/instance/getAll](http://localhost:3001/form/instance/getAll)
-        - Method: <b>GET</b>
-        - <b>Query</b> Parameters:
-            - formName
-    - Create
-        - URL: [/form/instance/create](http://localhost:3001/form/instance/create)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - formName
-            - instanceName
-    - Insert value
-        - URL: [/form/instance/insert](http://localhost:3001/form/instance/insert)
-        - Method: <b>POST</b>
-        - <b>Body</b> Parameters:
-            - formName
-            - instanceName
-            - field
+  - Get
+    - URL: [/form/instance/get](http://localhost:3001/form/instance/get)
+    - Method: <b>GET</b>
+    - <b>Query</b> Parameters:
+      - formName
+      - instanceName
+  - Get all
+    - URL: [/form/instance/getAll](http://localhost:3001/form/instance/getAll)
+    - Method: <b>GET</b>
+    - <b>Query</b> Parameters:
+      - formName
+  - Create
+    - URL: [/form/instance/create](http://localhost:3001/form/instance/create)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - formName
+      - instanceName
+  - Insert value
+    - URL: [/form/instance/insert](http://localhost:3001/form/instance/insert)
+    - Method: <b>POST</b>
+    - <b>Body</b> Parameters:
+      - formName
+      - instanceName
+      - field
+
 ---
 
 ## Quick Start
@@ -96,18 +101,21 @@ To install dependencies use:
 npm install
 
 ```
+
 To run the server in development mode:
 
 ```
 npm run dev
 
 ```
+
 To run the server in production mode:
 
 ```
 npm run prod
 
 ```
+
 To add postgres user with required grants:
 
 ```

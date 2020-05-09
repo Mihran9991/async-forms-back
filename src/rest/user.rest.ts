@@ -5,6 +5,7 @@ import UserMappers from "../mappers/user.mappers";
 import UserDto from "../dtos/user.dto";
 import UserPrincipal from "../principals/user.principal";
 import EditUserDto from "../dtos/edit.user.dto";
+import RedisService from "../services/redis.service";
 
 export function getAllRouter(
   req: Request,
@@ -47,8 +48,22 @@ export function editRouter(
     .catch((err) => res.status(400).json({ error: err }));
 }
 
+export function getActiveUsersList(
+  req: Request,
+  res: Response,
+  service: RedisService
+) {
+  const principal: UserPrincipal = res.locals.userPrincipal;
+
+  return service
+    .getActiveUsers(principal.uuid)
+    .then((activeUsersList) => res.status(200).json({ activeUsersList }))
+    .catch((err) => res.status(400).json({ error: err }));
+}
+
 export default {
   getAllRouter,
   getRouter,
   editRouter,
+  getActiveUsersList,
 };
