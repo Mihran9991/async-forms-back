@@ -1,5 +1,6 @@
 import io from "socket.io";
 import jwtAuth from "socketio-jwt-auth";
+import get from "lodash/get";
 
 import socketConstants from "../constants/socket.events.constants";
 import { JWT_SECRET } from "../configs/auth.config";
@@ -25,11 +26,27 @@ class Socket {
       this.disableField(socket);
       this.enableField(socket);
 
+      console.log("socket.request", socket.request.user.dataValues);
+      const { name, pictureUrl, uuid, email } = get(
+        socket,
+        "request.user.dataValues",
+        ""
+      );
+      this.redisService.addActiveUser({
+        name,
+        pictureUrl,
+        uuid,
+        email,
+      });
+
+      // this.redisService.clearActiveUserList();
+
       console.log("New socket connection has been established!", socket.id);
     });
 
     this.io.on("connect_error", (err: any) => {
       console.log("Socket connection error", err);
+      throw `Socket connection error: ${err.message}`;
     });
   }
 
