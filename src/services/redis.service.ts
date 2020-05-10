@@ -67,6 +67,10 @@ class RedisService {
       });
   }
 
+  public removeActiveUser(currentUserUUid: string): Promise<any> {
+    return this.hDelAsync(this.activeUsersKey, currentUserUUid);
+  }
+
   // noinspection JSUnusedGlobalSymbols
   public clearActiveUserList() {
     this.hGetAllAsync(this.activeUsersKey)

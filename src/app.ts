@@ -172,7 +172,11 @@ class App {
   public initRouters() {
     console.log("Initiating routers...");
     this.authRouter = new AuthRouter(router, this.authService);
-    this.userRouter = new UserRouter(router, this.userService);
+    this.userRouter = new UserRouter(
+      router,
+      this.userService,
+      this.redisService
+    );
     this.forgotPasswordRouter = new ForgotPasswordRouter(
       router,
       this.forgotPasswordService
