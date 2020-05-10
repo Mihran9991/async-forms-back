@@ -7,9 +7,11 @@ import ValidationMid from "../middlewares/validation.middleware";
 import RedisService from "../services/redis.service";
 
 export class UserRouter {
-  private redisService: RedisService = new RedisService();
-
-  constructor(router: Router, service: UserService) {
+  constructor(
+    router: Router,
+    service: UserService,
+    redisService: RedisService
+  ) {
     router.use((req: Request, res: Response, next: Function) => {
       res.locals.userService = service;
       next();
@@ -33,7 +35,7 @@ export class UserRouter {
       "/user/getActiveUsersList",
       [authMiddleware],
       (req: Request, res: Response) =>
-        UserRest.getActiveUsersList(req, res, this.redisService)
+        UserRest.getActiveUsersList(req, res, redisService)
     );
   }
 }

@@ -42,8 +42,13 @@ class Socket {
     });
 
     this.io.on("connect_error", (err: any) => {
-      console.log("Socket connection error", err);
       throw `Socket connection error: ${err.message}`;
+    });
+
+    this.io.on("disconnect", (socket: io.Socket) => {
+      const { uuid } = get(socket, "request.user.dataValues", "");
+
+      this.redisService.removeActiveUser(uuid);
     });
   }
 
@@ -75,7 +80,10 @@ class Socket {
             if (isLocked) {
               this.redisService.unLockField(data);
               socket.broadcast.emit(socketConstants.ENABLE_FORM_FIELD, data);
-              socket.broadcast.emit(socketConstants.UPDATE_FORM_FIELD, data);
+
+              if (data.value) {
+                socket.broadcast.emit(socketConstants.UPDATE_FORM_FIELD, data);
+              }
             }
           })
           .catch(() => {
