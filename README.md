@@ -133,3 +133,38 @@ INFO: If database somehow already exists, you can change the ownership with the 
 GRANT permissions ON async_forms dbname TO async_forms;
 
 ```
+
+To install and configure Redis
+
+```
+Installing...
+
+sudo apt update
+sudo apt install redis-server
+
+Configuring...
+
+If your linux system uses systemd as it's system components management software
+suit, than you'll need to set the supervised property to systemd.
+
+sudo nano /etc/redis/redis.conf
+
+. . .
+
+# If you run Redis from upstart or systemd, Redis can interact with your
+# supervision tree. Options:
+#   supervised no      - no supervision interaction
+#   supervised upstart - signal upstart by putting Redis into SIGSTOP mode
+#   supervised systemd - signal systemd by writing READY=1 to $NOTIFY_SOCKET
+#   supervised auto    - detect upstart or systemd method based on
+#                        UPSTART_JOB or NOTIFY_SOCKET environment variables
+# Note: these supervision methods only signal "process is ready."
+#       They do not enable continuous liveness pings back to your supervisor.
+supervised systemd
+
+. . .
+
+sudo systemctl restart redis.service
+
+DONE!
+```
