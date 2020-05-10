@@ -38,9 +38,6 @@ class Socket {
         uuid,
         email,
       });
-
-      // this.redisService.clearActiveUserList();
-
       console.log("New socket connection has been established!", socket.id);
     });
 
