@@ -77,6 +77,7 @@ export class FormInstanceService {
         }
         return Promise.all([
           form,
+          instance,
           this.tableService.getManyAs<DbFormField>(
             getFieldsTableName(form.sysName)
           ),
@@ -88,8 +89,9 @@ export class FormInstanceService {
       })
       .then((result) => {
         const form: Form = result[0];
-        const fields: DbFormField[] = result[1];
-        const values: DbFormValue[] = result[2];
+        const instance: FormInstance = result[1];
+        const fields: DbFormField[] = result[2];
+        const values: DbFormValue[] = result[3];
         return Promise.all([
           fields
             .filter((field: DbFormField) => !isTable(field.type))
@@ -121,7 +123,8 @@ export class FormInstanceService {
                     return Promise.all([
                       nestedFields,
                       this.tableService.getManyAs<DbNestedFormValue>(
-                        getValuesTableName(form.sysName, field.name)
+                        getValuesTableName(form.sysName, field.name),
+                        QueryUtils.whereInstanceId(instance.id)
                       ),
                     ]);
                   })
