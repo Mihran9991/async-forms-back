@@ -22,14 +22,21 @@ import InstanceDto from "../dtos/instance.dto";
 import QueryUtils from "../utils/query.utils";
 import JsonUtils from "../utils/json.utils";
 import lodash from "lodash";
+import RedisService from "./redis.service";
 
 export class FormInstanceService {
   private formService: FormService;
   private tableService: TableService;
+  private redisService: RedisService;
 
-  public constructor(formService: FormService, tableService: TableService) {
+  public constructor(
+    formService: FormService,
+    tableService: TableService,
+    redisService: RedisService
+  ) {
     this.formService = formService;
     this.tableService = tableService;
+    this.redisService = redisService;
   }
 
   public get(dto: InstanceDto): Promise<Nullable<FormInstance>> {
@@ -70,7 +77,7 @@ export class FormInstanceService {
           ),
         ]);
       })
-      .then(async (result) => {
+      .then((result) => {
         const form: Form = result[0] as Form;
         const instance: Nullable<FormInstance> = result[1];
         if (!instance) {
@@ -105,12 +112,24 @@ export class FormInstanceService {
                       value2.createdAt.valueOf() - value1.createdAt.valueOf()
                     );
                   })?.[0] as DbFormValue) ?? null;
-              return JsonUtils.getFieldJson(
-                field.name,
-                value?.value,
-                value?.ownerId,
-                value?.createdAt
-              );
+              return this.redisService
+                .isFieldLocked({
+                  formName: form.name,
+                  instanceName: instance.name,
+                  fieldName: field.name,
+                  type: field.type,
+                  columnId: null,
+                  rowId: null,
+                })
+                .then((isLocked: boolean) => {
+                  return JsonUtils.getFieldJson(
+                    field.name,
+                    value?.value,
+                    value?.ownerId,
+                    value?.createdAt,
+                    isLocked
+                  );
+                });
             }),
           Promise.all(
             fields
@@ -133,9 +152,13 @@ export class FormInstanceService {
                     const nestedFields: DbFormField[] = result[0];
                     const nestedValues: DbNestedFormValue[] = result[1];
                     return JsonUtils.getNestedFieldJson(
+                      form.name,
+                      instance.name,
                       field.name,
+                      field.type,
                       nestedFields,
-                      nestedValues
+                      nestedValues,
+                      this.redisService
                     );
                   });
               })

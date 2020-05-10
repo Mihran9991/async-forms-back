@@ -1,6 +1,6 @@
 import { FORM_DATA_TYPES } from "../constants/form.constants";
 
-import FormFieldDto from "../dtos/form.fied.dto";
+import { RedisField } from "../types/main.types";
 
 export const constructFormFieldKey = ({
   rowId,
@@ -9,10 +9,9 @@ export const constructFormFieldKey = ({
   fieldName,
   type,
   instanceName,
-}: FormFieldDto) => {
+}: RedisField) => {
   if (type === FORM_DATA_TYPES.Table) {
     return `${formName}_${instanceName}_${fieldName}_${rowId}_${columnId}`;
   }
-
   return `${formName}_${instanceName}_${fieldName}`;
 };

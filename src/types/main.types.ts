@@ -84,3 +84,12 @@ export interface RedisActiveUser {
   uuid: string;
   email: string;
 }
+
+export interface RedisField {
+  rowId: Nullable<string>;
+  columnId: Nullable<string>;
+  formName: string;
+  fieldName: string;
+  type: string;
+  instanceName: string;
+}

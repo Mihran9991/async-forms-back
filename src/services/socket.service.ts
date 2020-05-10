@@ -6,7 +6,7 @@ import socketConstants from "../constants/socket.events.constants";
 import { JWT_SECRET } from "../configs/auth.config";
 import UserService from "./user.service";
 import RedisService from "./redis.service";
-import FormFieldDto from "../dtos/form.fied.dto";
+import FormFieldDto from "../dtos/form.field.dto";
 
 class Socket {
   private io: any;
@@ -45,9 +45,9 @@ class Socket {
       throw `Socket connection error: ${err.message}`;
     });
 
-    this.io.on("disconnect", (socket: io.Socket) => {
+    this.io.on("disconnect", async (socket: io.Socket) => {
       const { uuid } = get(socket, "request.user.dataValues", "");
-
+      // noinspection ES6MissingAwait
       this.redisService.removeActiveUser(uuid);
     });
   }

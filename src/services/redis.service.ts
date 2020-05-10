@@ -2,16 +2,16 @@ import redis from "redis";
 import util from "util";
 import isObject from "lodash/isObject";
 
-import FormFieldDto from "../dtos/form.fied.dto";
-import { constructFormFieldKey } from "../utils/redis.util";
-import { RedisActiveUser } from "../types/main.types";
+import FormFieldDto from "../dtos/form.field.dto";
+import { constructFormFieldKey } from "../utils/redis.utils";
+import { RedisActiveUser, RedisField } from "../types/main.types";
+import RedisConstants from "../constants/redis.constants";
 
 class RedisService {
   private readonly client: redis.RedisClient;
-  private getAsync: (...args: any) => Promise<any>;
-  private hGetAllAsync: (...args: any) => Promise<any>;
-  private hDelAsync: (...args: any) => Promise<any>;
-  private activeUsersKey: string = "active_users";
+  private readonly getAsync: (...args: any) => Promise<any>;
+  private readonly hGetAllAsync: (...args: any) => Promise<any>;
+  private readonly hDelAsync: (...args: any) => Promise<any>;
 
   public constructor() {
     this.client = redis.createClient();
@@ -34,32 +34,24 @@ class RedisService {
 
   public unLockField(fieldData: FormFieldDto) {
     const redisKey = constructFormFieldKey(fieldData);
-
     this.client.del(redisKey);
   }
 
-  public isFieldLocked(fieldData: FormFieldDto): Promise<boolean> {
-    const redisKey = constructFormFieldKey(fieldData);
-
-    return this.getAsync(redisKey)
-      .then((reply) => {
-        return Boolean(reply);
-      })
-      .catch((err) => {
-        return err;
-      });
+  public isFieldLocked(fieldData: RedisField): Promise<boolean> {
+    const redisKey: string = constructFormFieldKey(fieldData);
+    return this.getAsync(redisKey).then((reply) => Boolean(reply));
   }
 
   public addActiveUser(userData: RedisActiveUser): void {
     this.client.hset(
-      this.activeUsersKey,
+      RedisConstants.ACTIVE_USERS_KEY,
       userData.uuid,
       JSON.stringify(userData)
     );
   }
 
   public getActiveUsers(currentUserUUid: string): Promise<any> {
-    return this.hGetAllAsync(this.activeUsersKey)
+    return this.hGetAllAsync(RedisConstants.ACTIVE_USERS_KEY)
       .then((activeUsers) =>
         this.parseActiveUsersList(activeUsers, currentUserUUid)
       )
@@ -69,18 +61,18 @@ class RedisService {
   }
 
   public removeActiveUser(currentUserUUid: string): Promise<any> {
-    return this.hDelAsync(this.activeUsersKey, currentUserUUid);
+    return this.hDelAsync(RedisConstants.ACTIVE_USERS_KEY, currentUserUUid);
   }
 
   // noinspection JSUnusedGlobalSymbols
   public clearActiveUserList() {
-    this.hGetAllAsync(this.activeUsersKey)
+    this.hGetAllAsync(RedisConstants.ACTIVE_USERS_KEY)
       .then(async (activeUsers) => {
         const socketIds = Object.keys(activeUsers);
 
         for await (const key of socketIds) {
           // noinspection ES6MissingAwait
-          this.hDelAsync(this.activeUsersKey, key);
+          this.hDelAsync(RedisConstants.ACTIVE_USERS_KEY, key);
         }
       })
       .catch((err) => {

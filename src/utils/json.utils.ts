@@ -4,29 +4,35 @@ import {
   DbNestedFormValue,
   Nullable,
 } from "../types/main.types";
+import RedisService from "../services/redis.service";
 
 export const getFieldJson = (
   fieldName: string,
   value: string = "",
   owner: string = "",
-  createdAt: Nullable<Date> = null
+  createdAt: Nullable<Date> = null,
+  isLocked: boolean = false
 ): string => {
   return `"${fieldName}": { "value": "${value}", "owner": "${owner}", "createdAt": "${
     createdAt ?? ""
-  }" }`;
+  }", "isLocked": "${isLocked}" }`;
 };
 
 export const getNestedFieldJson = (
+  formName: string,
+  instanceName: string,
   fieldName: string,
+  fieldType: string,
   nestedFields: DbFormField[],
-  nestedValues: DbNestedFormValue[]
-): string => {
-  return `"${fieldName}": {
-    "fields": [
-      ${groupByRowId(nestedValues).map((result) => {
-        const rowId = result[0] as string;
-        const values = result[1] as DbNestedFormValue[];
-        const strings = nestedFields.map((field: DbFormField) => {
+  nestedValues: DbNestedFormValue[],
+  redisService: RedisService
+): Promise<string> => {
+  return Promise.all(
+    groupByRowId(nestedValues).map((result) => {
+      const rowId = result[0] as string;
+      const values = result[1] as DbNestedFormValue[];
+      return Promise.all(
+        nestedFields.map((field: DbFormField) => {
           const sorted: DbFormValue[] = values
             .filter((value: DbNestedFormValue) => value.fieldId === field.id)
             .sort(
@@ -34,23 +40,42 @@ export const getNestedFieldJson = (
                 value2.createdAt.valueOf() - value1.createdAt.valueOf()
             );
           const value: Nullable<DbFormValue> = sorted?.[0] ?? null;
-          return getFieldJson(
-            field.name,
-            value?.value,
-            value?.ownerId,
-            value?.createdAt
-          );
-        });
+          return redisService
+            .isFieldLocked({
+              formName: formName,
+              instanceName: instanceName,
+              fieldName: fieldName,
+              type: fieldType,
+              columnId: field.name,
+              rowId: rowId,
+            })
+            .then((isLocked: boolean) => {
+              return getFieldJson(
+                field.name,
+                value?.value,
+                value?.ownerId,
+                value?.createdAt,
+                isLocked
+              );
+            });
+        })
+      ).then((strings: string[]) => {
         return `{
             "rowId": "${rowId}",
             ${strings}
           }`;
-      })}
-    ]
-  }`;
+      });
+    })
+  ).then((result: string[]) => {
+    return `"${fieldName}": {
+        "fields": [
+            ${result}
+          ]
+        }`;
+  });
 };
 
-const groupByRowId = (values: DbNestedFormValue[]) => {
+export const groupByRowId = (values: DbNestedFormValue[]) => {
   const rowIds: string[] = Array.from(
     new Set(values.map((value: DbNestedFormValue) => value.rowId)).values()
   );
@@ -65,4 +90,5 @@ const groupByRowId = (values: DbNestedFormValue[]) => {
 export default {
   getFieldJson,
   getNestedFieldJson,
+  groupByRowId,
 };

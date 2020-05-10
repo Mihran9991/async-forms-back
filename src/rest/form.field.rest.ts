@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import FormFieldService from "../services/form.field.service";
-import FormFieldDto from "../dtos/form.fied.dto";
+import FormFieldDto from "../dtos/form.field.dto";
 
 export function formFieldRouter(
   req: Request,
