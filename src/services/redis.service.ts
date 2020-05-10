@@ -3,38 +3,15 @@ import util from "util";
 import isObject from "lodash/isObject";
 
 import FormFieldDto from "../dtos/form.fied.dto";
-import { consturctFormFieldKey } from "../utils/redis.util";
+import { constructFormFieldKey } from "../utils/redis.util";
 import { RedisActiveUser } from "../types/main.types";
 
 class RedisService {
-  private client: redis.RedisClient;
+  private readonly client: redis.RedisClient;
   private getAsync: (...args: any) => Promise<any>;
   private hGetAllAsync: (...args: any) => Promise<any>;
   private hDelAsync: (...args: any) => Promise<any>;
   private activeUsersKey: string = "active_users";
-
-  private parseActiveUsersList(
-    activeUsers: {
-      [key: string]: string;
-    },
-    currenrUserUUid: string
-  ): RedisActiveUser[] {
-    if (isObject(activeUsers)) {
-      const transformedData: string[] = Object.values(activeUsers);
-      const reduceMapper = (acc: RedisActiveUser[], value: string) => {
-        const user = JSON.parse(value);
-        if (user.uuid !== currenrUserUUid) {
-          return [...acc, user];
-        }
-
-        return [...acc];
-      };
-
-      return transformedData.reduce(reduceMapper, []);
-    }
-
-    return [];
-  }
 
   public constructor() {
     this.client = redis.createClient();
@@ -45,23 +22,23 @@ class RedisService {
 
   public init(): void {
     this.client.on("connect", () => {
-      console.log("Redis initieted successfully!");
+      console.log("Redis initiated successfully!");
     });
   }
 
   public lockField(fieldData: FormFieldDto) {
-    const redisKey = consturctFormFieldKey(fieldData);
+    const redisKey = constructFormFieldKey(fieldData);
     this.client.set(redisKey, fieldData.ownerId);
   }
 
   public unLockField(fieldData: FormFieldDto) {
-    const redisKey = consturctFormFieldKey(fieldData);
+    const redisKey = constructFormFieldKey(fieldData);
 
     this.client.del(redisKey);
   }
 
   public isFieldLocked(fieldData: FormFieldDto): Promise<boolean> {
-    const redisKey = consturctFormFieldKey(fieldData);
+    const redisKey = constructFormFieldKey(fieldData);
 
     return this.getAsync(redisKey)
       .then((reply) => {
@@ -80,28 +57,53 @@ class RedisService {
     );
   }
 
-  public getActiveUsers(currenrUserUUid: string): Promise<any> {
+  public getActiveUsers(currentUserUUid: string): Promise<any> {
     return this.hGetAllAsync(this.activeUsersKey)
       .then((activeUsers) =>
-        this.parseActiveUsersList(activeUsers, currenrUserUUid)
+        this.parseActiveUsersList(activeUsers, currentUserUUid)
       )
       .catch((err) => {
         throw `Error during getting active users list: ${err.message}`;
       });
   }
 
+  // noinspection JSUnusedGlobalSymbols
   public clearActiveUserList() {
     this.hGetAllAsync(this.activeUsersKey)
       .then(async (activeUsers) => {
         const socketIds = Object.keys(activeUsers);
 
         for await (const key of socketIds) {
+          // noinspection ES6MissingAwait
           this.hDelAsync(this.activeUsersKey, key);
         }
       })
       .catch((err) => {
         throw `Error during clearing active users list: ${err.message}`;
       });
+  }
+
+  private parseActiveUsersList(
+    activeUsers: {
+      [key: string]: string;
+    },
+    currentUserUUid: string
+  ): RedisActiveUser[] {
+    if (isObject(activeUsers)) {
+      const transformedData: string[] = Object.values(activeUsers);
+      const reduceMapper = (acc: RedisActiveUser[], value: string) => {
+        const user = JSON.parse(value);
+        if (user.uuid !== currentUserUUid) {
+          return [...acc, user];
+        }
+
+        return [...acc];
+      };
+
+      return transformedData.reduce(reduceMapper, []);
+    }
+
+    return [];
   }
 }
 

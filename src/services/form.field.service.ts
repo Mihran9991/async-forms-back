@@ -1,10 +1,10 @@
-import RedisServce from "./redis.service";
+import RedisService from "./redis.service";
 import FormFieldDto from "../dtos/form.fied.dto";
 
 export class FormFieldService {
-  private redisService: RedisServce;
+  private redisService: RedisService;
 
-  public constructor(redisService: RedisServce) {
+  public constructor(redisService: RedisService) {
     this.redisService = redisService;
   }
 

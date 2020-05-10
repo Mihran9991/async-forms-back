@@ -2,6 +2,7 @@ export type ConfigType = undefined | string;
 export type GeneratedTokenType = TokenType & string;
 export type Nullable<T> = T | null;
 
+// noinspection JSUnusedGlobalSymbols
 export interface FieldDataType {
   rowId?: Nullable<string>;
   columnId?: Nullable<string>;

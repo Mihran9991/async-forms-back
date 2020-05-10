@@ -2,7 +2,7 @@ import { FORM_DATA_TYPES } from "../constants/form.constants";
 
 import FormFieldDto from "../dtos/form.fied.dto";
 
-export const consturctFormFieldKey = ({
+export const constructFormFieldKey = ({
   rowId,
   columnId,
   formName,

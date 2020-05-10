@@ -54,7 +54,6 @@ export function getActiveUsersList(
   service: RedisService
 ) {
   const principal: UserPrincipal = res.locals.userPrincipal;
-
   return service
     .getActiveUsers(principal.uuid)
     .then((activeUsersList) => res.status(200).json({ activeUsersList }))
