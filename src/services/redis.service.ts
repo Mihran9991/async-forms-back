@@ -18,6 +18,7 @@ class RedisService {
     this.getAsync = util.promisify(this.client.get).bind(this.client);
     this.hGetAllAsync = util.promisify(this.client.hgetall).bind(this.client);
     this.hDelAsync = util.promisify(this.client.hdel).bind(this.client);
+    this.clearActiveUserList();
   }
 
   public init(): void {

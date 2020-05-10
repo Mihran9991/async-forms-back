@@ -20,7 +20,8 @@ import FormService from "./form.service";
 import TableService from "./table.service";
 import InstanceDto from "../dtos/instance.dto";
 import QueryUtils from "../utils/query.utils";
-import JsonUtils, { getFieldJson } from "../utils/json.utils";
+import JsonUtils from "../utils/json.utils";
+import lodash from "lodash";
 
 export class FormInstanceService {
   private formService: FormService;
@@ -59,7 +60,7 @@ export class FormInstanceService {
       .get(instanceDto.formName)
       .then((form: Nullable<Form>) => {
         if (!form) {
-          throw `Form with name: ${name} not found`;
+          throw `Form with name: ${instanceDto.formName} not found`;
         }
         return Promise.all([
           form,
@@ -104,7 +105,7 @@ export class FormInstanceService {
                       value2.createdAt.valueOf() - value1.createdAt.valueOf()
                     );
                   })?.[0] as DbFormValue) ?? null;
-              return getFieldJson(
+              return JsonUtils.getFieldJson(
                 field.name,
                 value?.value,
                 value?.ownerId,
@@ -143,7 +144,12 @@ export class FormInstanceService {
       })
       .then((result) => {
         return JSON.parse(`{
-            ${result[0]},
+            ${result[0]}
+            ${
+              !(lodash.isEmpty(result[0]) || lodash.isEmpty(result[1]))
+                ? ","
+                : ""
+            }
             ${result[1]}
         }`);
       });

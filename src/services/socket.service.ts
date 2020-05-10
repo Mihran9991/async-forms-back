@@ -38,7 +38,6 @@ class Socket {
         uuid,
         email,
       });
-
       console.log("New socket connection has been established!", socket.id);
     });
 
