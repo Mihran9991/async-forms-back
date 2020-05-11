@@ -23,11 +23,12 @@ import QueryUtils from "../utils/query.utils";
 import JsonUtils from "../utils/json.utils";
 import lodash from "lodash";
 import RedisService from "./redis.service";
+import PromiseUtils from "../utils/promise.utils";
 
 export class FormInstanceService {
-  private formService: FormService;
-  private tableService: TableService;
-  private redisService: RedisService;
+  private readonly formService: FormService;
+  private readonly tableService: TableService;
+  private readonly redisService: RedisService;
 
   public constructor(
     formService: FormService,
@@ -63,119 +64,11 @@ export class FormInstanceService {
   }
 
   public getValues(instanceDto: InstanceDto): Promise<object> {
-    return this.formService
-      .get(instanceDto.formName)
-      .then((form: Nullable<Form>) => {
-        if (!form) {
-          throw `Form with name: ${instanceDto.formName} not found`;
-        }
-        return Promise.all([
-          form,
-          this.tableService.getAs<FormInstance>(
-            getInstancesTableName(form.sysName),
-            QueryUtils.whereName(instanceDto.instanceName)
-          ),
-        ]);
-      })
-      .then((result) => {
-        const form: Form = result[0] as Form;
-        const instance: Nullable<FormInstance> = result[1];
-        if (!instance) {
-          throw `Form instance with name: ${instanceDto.instanceName} not found`;
-        }
-        return Promise.all([
-          form,
-          instance,
-          this.tableService.getManyAs<DbFormField>(
-            getFieldsTableName(form.sysName)
-          ),
-          this.tableService.getManyAs<DbFormValue>(
-            getValuesTableName(form.sysName),
-            QueryUtils.whereInstanceId(instance.id)
-          ),
-        ]);
-      })
-      .then((result) => {
-        const form: Form = result[0];
-        const instance: FormInstance = result[1];
-        const fields: DbFormField[] = result[2];
-        const values: DbFormValue[] = result[3];
-        return Promise.all([
-          fields
-            .filter((field: DbFormField) => !isTable(field.type))
-            .map((field: DbFormField) => {
-              const value: Nullable<DbFormValue> =
-                (values
-                  .filter((value: DbFormValue) => value.fieldId === field.id)
-                  .sort((value1: DbFormValue, value2: DbFormValue) => {
-                    return (
-                      value2.createdAt.valueOf() - value1.createdAt.valueOf()
-                    );
-                  })?.[0] as DbFormValue) ?? null;
-              return this.redisService
-                .isFieldLocked({
-                  formName: form.name,
-                  instanceName: instance.name,
-                  fieldName: field.name,
-                  type: field.type,
-                  columnId: null,
-                  rowId: null,
-                })
-                .then((isLocked: boolean) => {
-                  return JsonUtils.getFieldJson(
-                    field.name,
-                    value?.value,
-                    value?.ownerId,
-                    value?.createdAt,
-                    isLocked
-                  );
-                });
-            }),
-          Promise.all(
-            fields
-              .filter((field: DbFormField) => isTable(field.type))
-              .map((field: DbFormField) => {
-                return this.tableService
-                  .getManyAs<DbFormField>(
-                    getFieldsTableName(form.sysName, field.name)
-                  )
-                  .then((nestedFields: DbFormField[]) => {
-                    return Promise.all([
-                      nestedFields,
-                      this.tableService.getManyAs<DbNestedFormValue>(
-                        getValuesTableName(form.sysName, field.name),
-                        QueryUtils.whereInstanceId(instance.id)
-                      ),
-                    ]);
-                  })
-                  .then((result) => {
-                    const nestedFields: DbFormField[] = result[0];
-                    const nestedValues: DbNestedFormValue[] = result[1];
-                    return JsonUtils.getNestedFieldJson(
-                      form.name,
-                      instance.name,
-                      field.name,
-                      field.type,
-                      nestedFields,
-                      nestedValues,
-                      this.redisService
-                    );
-                  });
-              })
-          ),
-        ]);
-      })
-      .then((result) => {
-        return JSON.parse(`{
-            ${result[0]}
-            ${
-              !(lodash.isEmpty(result[0]) || lodash.isEmpty(result[1]))
-                ? ","
-                : ""
-            }
-            ${result[1]}
-        }`);
-      });
+    return PromiseUtils.serialWithReturns(this, instanceDto, [
+      this.getFormAndInstance,
+      this.getFieldsAndValues,
+      this.getJson,
+    ]).then((result) => FormInstanceService.getParsedJson(result));
   }
 
   public create(
@@ -260,6 +153,144 @@ export class FormInstanceService {
           )
         );
       });
+  }
+
+  private static getParsedJson(result: any): object {
+    return JSON.parse(`{
+            ${result[0]}
+            ${
+              !(lodash.isEmpty(result[0]) || lodash.isEmpty(result[1]))
+                ? ","
+                : ""
+            }
+            ${result[1]}
+        }`);
+  }
+
+  private getFormAndInstance(instanceDto: InstanceDto) {
+    return this.formService
+      .get(instanceDto.formName)
+      .then((form: Nullable<Form>) => {
+        if (!form) {
+          throw `Form with name: ${instanceDto.formName} not found`;
+        }
+        return Promise.all([
+          form,
+          instanceDto.instanceName,
+          this.tableService.getAs<FormInstance>(
+            getInstancesTableName(form.sysName),
+            QueryUtils.whereName(instanceDto.instanceName)
+          ),
+        ]);
+      });
+  }
+
+  private getFieldsAndValues(result: (Form | string | FormInstance | null)[]) {
+    const form = result[0] as Form;
+    const instanceName = result[1] as string;
+    const instance = result[2] as Nullable<FormInstance>;
+    if (!instance) {
+      throw `Form instance with name: ${instanceName} not found`;
+    }
+    return Promise.all([
+      form,
+      instance,
+      this.tableService.getManyAs<DbFormField>(
+        getFieldsTableName(form.sysName)
+      ),
+      this.tableService.getManyAs<DbFormValue>(
+        getValuesTableName(form.sysName),
+        QueryUtils.whereInstanceId(instance.id)
+      ),
+    ]);
+  }
+
+  private getJson(
+    result: (Form | FormInstance | DbFormField[] | DbFormValue[])[]
+  ) {
+    const form = result[0] as Form;
+    const instance = result[1] as FormInstance;
+    const fields = result[2] as DbFormField[];
+    const values = result[3] as DbFormValue[];
+    return Promise.all([
+      this.getFieldsAndValuesJson(form, instance, fields, values),
+      this.getNestedFieldsAndValues(form, instance, fields),
+    ]);
+  }
+
+  private getFieldsAndValuesJson(
+    form: Form,
+    instance: FormInstance,
+    fields: DbFormField[],
+    values: DbFormValue[]
+  ) {
+    return fields
+      .filter((field: DbFormField) => !isTable(field.type))
+      .map((field: DbFormField) => {
+        const value: Nullable<DbFormValue> =
+          (values
+            .filter((value: DbFormValue) => value.fieldId === field.id)
+            .sort((value1: DbFormValue, value2: DbFormValue) => {
+              return value2.createdAt.valueOf() - value1.createdAt.valueOf();
+            })?.[0] as DbFormValue) ?? null;
+        return this.redisService
+          .isFieldLocked({
+            formName: form.name,
+            instanceName: instance.name,
+            fieldName: field.name,
+            type: field.type,
+            columnId: null,
+            rowId: null,
+          })
+          .then((isLocked: boolean) => {
+            return JsonUtils.getFieldJson(
+              field.name,
+              value?.value,
+              value?.ownerId,
+              value?.createdAt,
+              isLocked
+            );
+          });
+      });
+  }
+
+  private getNestedFieldsAndValues(
+    form: Form,
+    instance: FormInstance,
+    fields: DbFormField[]
+  ) {
+    return Promise.all(
+      fields
+        .filter((field: DbFormField) => isTable(field.type))
+        .map((field: DbFormField) => {
+          return this.tableService
+            .getManyAs<DbFormField>(
+              getFieldsTableName(form.sysName, field.name)
+            )
+            .then((nestedFields: DbFormField[]) => {
+              return Promise.all([
+                nestedFields,
+                this.tableService.getManyAs<DbNestedFormValue>(
+                  getValuesTableName(form.sysName, field.name),
+                  QueryUtils.whereInstanceId(instance.id)
+                ),
+              ]);
+            })
+            .then((result) => {
+              const nestedFields: DbFormField[] = result[0];
+              const nestedValues: DbNestedFormValue[] = result[1];
+              return JsonUtils.getNestedFieldJson(
+                form.name,
+                instance.name,
+                field.name,
+                field.type,
+                nestedFields,
+                nestedValues,
+                this.redisService
+              );
+            });
+        })
+    );
   }
 }
 
