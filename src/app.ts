@@ -159,11 +159,16 @@ class App {
       this.userService,
       this.tableService
     );
-
     this.redisService = new RedisService();
-    this.formFieldService = new FormFieldService(this.redisService);
     this.formInstanceService = new FormInstanceService(
       this.formService,
+      this.tableService,
+      this.redisService,
+      this.userService
+    );
+    this.formFieldService = new FormFieldService(
+      this.formService,
+      this.formInstanceService,
       this.tableService,
       this.redisService,
       this.userService

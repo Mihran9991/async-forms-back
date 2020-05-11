@@ -7,11 +7,17 @@ const BASE_URL: string = "/form/field";
 
 export class FormFieldRouter {
   constructor(router: Router, service: FormFieldService) {
+    router.get(
+      `${BASE_URL}/audit`,
+      [authMiddleware],
+      (req: Request, res: Response) =>
+        FormFieldRest.getFieldAuditRouter(req, res, service)
+    );
     router.post(
       `${BASE_URL}/isLocked`,
       [authMiddleware],
       (req: Request, res: Response) =>
-        FormFieldRest.formFieldRouter(req, res, service)
+        FormFieldRest.isFieldLockedRouter(req, res, service)
     );
   }
 }
