@@ -7,6 +7,7 @@ import { Nullable } from "../types/main.types";
 import { generateUUID } from "../utils/uuid.utils";
 import EditUserDto from "../dtos/edit.user.dto";
 import CloudService from "./cloud.service";
+import UserUtils from "../utils/user.utils";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -30,6 +31,12 @@ export class UserService {
 
   public findByEmail(email: string): Promise<Nullable<User>> {
     return this.userRepository.findByEmail(email);
+  }
+
+  public getFullName(uuid: string): Promise<string> {
+    return this.findByUUID(uuid).then((user: Nullable<User>) => {
+      return user ? UserUtils.getFullName(user) : uuid;
+    });
   }
 
   public create(dto: RegistrationDto): Promise<Nullable<User>> {

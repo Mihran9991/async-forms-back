@@ -3,7 +3,6 @@ import FormService from "../services/form.service";
 import CreateFormDto from "../dtos/create.form.dto";
 import UserPrincipal from "../principals/user.principal";
 import Form from "../entities/form.entity";
-import FormMapper from "../mappers/form.mappers";
 import FormDto from "../dtos/form.dto";
 import { Nullable } from "../types/main.types";
 
@@ -27,9 +26,6 @@ export function getAllRouter(
 ) {
   return service
     .getAll()
-    .then((forms: Form[]) =>
-      forms.map((form: Form) => FormMapper.fromEntityToDto(form))
-    )
     .then((dtos: FormDto[]) => res.status(200).json(dtos))
     .catch((err) => res.status(400).json({ error: err }));
 }

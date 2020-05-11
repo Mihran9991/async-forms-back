@@ -165,7 +165,8 @@ class App {
     this.formInstanceService = new FormInstanceService(
       this.formService,
       this.tableService,
-      this.redisService
+      this.redisService,
+      this.userService
     );
     console.log("Services initiated successfully");
   }

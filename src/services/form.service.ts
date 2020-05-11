@@ -16,7 +16,9 @@ import {
   getValuesTableName,
   isTable,
 } from "../utils/form.utils";
+import FormMapper from "../mappers/form.mappers";
 import TableService from "./table.service";
+import FormDto from "../dtos/form.dto";
 
 export class FormService {
   private repository: FormRepository;
@@ -37,8 +39,14 @@ export class FormService {
     return this.repository.getByName(toUnderscoreCase(name));
   }
 
-  public getAll(): Promise<Form[]> {
-    return this.repository.getAll();
+  public getAll(): Promise<FormDto[]> {
+    return this.repository
+      .getAll()
+      .then((forms) =>
+        Promise.all(
+          forms.map((form) => FormMapper.toDto(form, this.userService))
+        )
+      );
   }
 
   public create(dto: CreateFormDto, ownerUUID: string): Promise<void> {

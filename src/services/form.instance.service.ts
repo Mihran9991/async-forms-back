@@ -1,3 +1,5 @@
+import lodash from "lodash";
+
 import { InsertInstanceValueDto } from "../dtos/insert.instance.value.dto";
 import {
   DbFormField,
@@ -18,26 +20,31 @@ import {
 import { toUnderscoreCase } from "../utils/string.utils";
 import FormService from "./form.service";
 import TableService from "./table.service";
+import RedisService from "./redis.service";
 import InstanceDto from "../dtos/instance.dto";
 import QueryUtils from "../utils/query.utils";
 import JsonUtils from "../utils/json.utils";
-import lodash from "lodash";
-import RedisService from "./redis.service";
 import PromiseUtils from "../utils/promise.utils";
+import UserService from "./user.service";
+import GetFormInstanceDto from "../dtos/get.form.instance.dto";
+import FormMappers from "../mappers/form.mappers";
 
 export class FormInstanceService {
   private readonly formService: FormService;
   private readonly tableService: TableService;
   private readonly redisService: RedisService;
+  private readonly userService: UserService;
 
   public constructor(
     formService: FormService,
     tableService: TableService,
-    redisService: RedisService
+    redisService: RedisService,
+    userService: UserService
   ) {
     this.formService = formService;
     this.tableService = tableService;
     this.redisService = redisService;
+    this.userService = userService;
   }
 
   public get(dto: InstanceDto): Promise<Nullable<FormInstance>> {
@@ -52,15 +59,27 @@ export class FormInstanceService {
     });
   }
 
-  public getInstances(name: string): Promise<FormInstance[]> {
-    return this.formService.get(name).then((form: Nullable<Form>) => {
-      if (!form) {
-        throw `Form with name: ${name} not found`;
-      }
-      return this.tableService.getManyAs<FormInstance>(
-        getInstancesTableName(form.sysName)
+  public getInstances(name: string): Promise<GetFormInstanceDto[]> {
+    return this.formService
+      .get(name)
+      .then((form: Nullable<Form>) => {
+        if (!form) {
+          throw `Form with name: ${name} not found`;
+        }
+        return form;
+      })
+      .then((form: Form) => {
+        return this.tableService.getManyAs<FormInstance>(
+          getInstancesTableName(form.sysName)
+        );
+      })
+      .then((result: FormInstance[]) =>
+        Promise.all(
+          result.map((instance: FormInstance) =>
+            FormMappers.toInstanceDto(instance, this.userService)
+          )
+        )
       );
-    });
   }
 
   public getValues(instanceDto: InstanceDto): Promise<object> {
@@ -74,7 +93,7 @@ export class FormInstanceService {
   public create(
     dto: InstanceDto,
     ownerUUID: string
-  ): Promise<Nullable<FormInstance>> {
+  ): Promise<GetFormInstanceDto> {
     return this.formService
       .get(dto.formName)
       .then((form: Nullable<Form>) => {
@@ -87,7 +106,10 @@ export class FormInstanceService {
           QueryUtils.insertNameAndOwnerId(dto.instanceName, ownerUUID)
         );
       })
-      .then(() => this.get(dto));
+      .then(() => this.get(dto))
+      .then((instance: Nullable<FormInstance>) =>
+        FormMappers.toInstanceDto(instance!, this.userService)
+      );
   }
 
   public insertValue(
