@@ -11,11 +11,12 @@ export const getFieldJson = (
   value: string = "",
   owner: string = "",
   createdAt: Nullable<Date> = null,
-  isLocked: boolean = false
+  isLocked: boolean = false,
+  lockedBy: string = ""
 ): string => {
   return `"${fieldName}": { "value": "${value}", "owner": "${owner}", "createdAt": "${
     createdAt ?? ""
-  }", "isLocked": "${isLocked}" }`;
+  }", "isLocked": "${isLocked}", "lockedBy": "${lockedBy}" }`;
 };
 
 export const getNestedFieldJson = (
@@ -49,13 +50,14 @@ export const getNestedFieldJson = (
               columnId: field.name,
               rowId: rowId,
             })
-            .then((isLocked: boolean) => {
+            .then(({ isLocked, ownerId: lockedBy }) => {
               return getFieldJson(
                 field.name,
                 value?.value,
                 value?.ownerId,
                 value?.createdAt,
-                isLocked
+                isLocked,
+                lockedBy
               );
             });
         })

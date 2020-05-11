@@ -37,9 +37,16 @@ class RedisService {
     this.client.del(redisKey);
   }
 
-  public isFieldLocked(fieldData: RedisField): Promise<boolean> {
+  public isFieldLocked(
+    fieldData: RedisField
+  ): Promise<{ isLocked: boolean; ownerId: string }> {
     const redisKey: string = constructFormFieldKey(fieldData);
-    return this.getAsync(redisKey).then((reply) => Boolean(reply));
+    return this.getAsync(redisKey).then((ownerId) => {
+      return {
+        isLocked: Boolean(ownerId),
+        ownerId: ownerId || "",
+      };
+    });
   }
 
   public addActiveUser(userData: RedisActiveUser): void {

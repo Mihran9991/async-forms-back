@@ -57,7 +57,7 @@ class Socket {
       console.log(socketConstants.START_FORM_FIELD_CHANGE, data);
       this.redisService
         .isFieldLocked(data)
-        .then((isLocked) => {
+        .then(({ isLocked }) => {
           if (!isLocked) {
             this.redisService.lockField(data);
             socket.broadcast.emit(socketConstants.DISABLE_FORM_FIELD, data);
@@ -76,7 +76,7 @@ class Socket {
         console.log(socketConstants.FINISH_FORM_FIELD_CHANGE, data);
         this.redisService
           .isFieldLocked(data)
-          .then((isLocked) => {
+          .then(({ isLocked }) => {
             if (isLocked) {
               this.redisService.unLockField(data);
               socket.broadcast.emit(socketConstants.ENABLE_FORM_FIELD, data);

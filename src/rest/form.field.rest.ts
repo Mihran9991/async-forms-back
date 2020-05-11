@@ -22,7 +22,7 @@ export function formFieldRouter(
 
   return service
     .isFieldLocked(formFieldDto)
-    .then((isLocked) => {
+    .then(({ isLocked }) => {
       res.status(200).json({ isLocked });
     })
     .catch((error) => {
