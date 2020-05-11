@@ -2,8 +2,28 @@ import { Request, Response } from "express";
 
 import FormFieldService from "../services/form.field.service";
 import FormFieldDto from "../dtos/form.field.dto";
+import GetFormFieldAuditDto from "../dtos/get.form.field.audit.dto";
+import FormFieldAuditDto from "../dtos/form.field.audit.dto";
 
-export function formFieldRouter(
+export function getFieldAuditRouter(
+  req: Request,
+  res: Response,
+  service: FormFieldService
+) {
+  const formFieldDto: FormFieldAuditDto = new FormFieldAuditDto(
+    req.query.formName.toString(),
+    req.query.instanceName.toString(),
+    req.query.fieldName.toString(),
+    req.query.rowId.toString(),
+    req.query.columnName.toString()
+  );
+  return service
+    .getFieldAudit(formFieldDto)
+    .then((data: GetFormFieldAuditDto[]) => res.status(200).json(data))
+    .catch((error) => res.status(400).json({ error }));
+}
+
+export function isFieldLockedRouter(
   req: Request,
   res: Response,
   service: FormFieldService
@@ -22,7 +42,7 @@ export function formFieldRouter(
 
   return service
     .isFieldLocked(formFieldDto)
-    .then((isLocked) => {
+    .then((isLocked: boolean) => {
       res.status(200).json({ isLocked });
     })
     .catch((error) => {
@@ -31,5 +51,6 @@ export function formFieldRouter(
 }
 
 export default {
-  formFieldRouter,
+  getFieldAuditRouter,
+  isFieldLockedRouter,
 };
