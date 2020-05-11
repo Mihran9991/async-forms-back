@@ -1,10 +1,10 @@
 export class GetFormInstanceDto {
   public name: string;
-  public ownerId: string;
+  public owner: string;
 
-  public constructor(name: string, ownerId: string) {
+  public constructor(name: string, owner: string) {
     this.name = name;
-    this.ownerId = ownerId;
+    this.owner = owner;
   }
 }
 
