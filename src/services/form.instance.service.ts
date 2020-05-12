@@ -267,13 +267,14 @@ export class FormInstanceService {
               columnId: null,
               rowId: null,
             })
-            .then((isLocked: boolean) => {
+            .then(({ isLocked, ownerId: lockedBy }) => {
               return JsonUtils.getFieldJson(
                 field.name,
                 value?.value,
                 value?.ownerId,
                 value?.createdAt,
-                isLocked
+                isLocked,
+                lockedBy
               );
             });
         })

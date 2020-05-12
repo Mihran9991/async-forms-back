@@ -89,11 +89,10 @@ export const isFormFieldLockedForm = () => {
     body("formName").notEmpty({ ignore_whitespace: true }),
     body("instanceName").notEmpty({ ignore_whitespace: true }),
     body("fieldName").notEmpty({ ignore_whitespace: true }),
-    body("type").notEmpty({ ignore_whitespace: true }),
     body("ownerId").notEmpty({ ignore_whitespace: true }),
-    query("rowId").exists(),
-    query("columnId").exists(),
-    query("value").exists(),
+    body("type").exists(),
+    body("rowId").exists(),
+    body("columnId").exists(),
   ];
 };
 

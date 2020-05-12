@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import get from "lodash/get";
 
 import FormFieldService from "../services/form.field.service";
 import FormFieldDto from "../dtos/form.field.dto";
@@ -10,12 +11,13 @@ export function getFieldAuditRouter(
   res: Response,
   service: FormFieldService
 ) {
+  const query = get(req, "query", {});
   const formFieldDto: FormFieldAuditDto = new FormFieldAuditDto(
-    req.query.formName.toString(),
-    req.query.instanceName.toString(),
-    req.query.fieldName.toString(),
-    req.query.rowId.toString(),
-    req.query.columnName.toString()
+    get(query, "formName", "").toString(),
+    get(query, "instanceName", "").toString(),
+    get(query, "fieldName", "").toString(),
+    get(query, "rowId", "").toString(),
+    get(query, "columnName", "").toString()
   );
   return service
     .getFieldAudit(formFieldDto)
@@ -35,14 +37,13 @@ export function isFieldLockedRouter(
     req.body.fieldName,
     req.body.type,
     req.body.instanceName,
-    req.body.value,
     req.body.formName,
     req.body.ownerId
   );
 
   return service
     .isFieldLocked(formFieldDto)
-    .then((isLocked: boolean) => {
+    .then(({ isLocked }) => {
       res.status(200).json({ isLocked });
     })
     .catch((error) => {
