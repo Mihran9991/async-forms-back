@@ -58,18 +58,42 @@ export const getFormInstancesParams = () => {
   return [query("formName").notEmpty({ ignore_whitespace: true })];
 };
 
-export const createFormInstanceParams = () => {
+export const createFormInstanceForm = () => {
   return [
     body("formName").notEmpty({ ignore_whitespace: true }),
     body("instanceName").notEmpty({ ignore_whitespace: true }),
   ];
 };
 
-export const insertIntoFormInstanceParams = () => {
+export const insertIntoFormInstanceForm = () => {
   return [
     body("formName").notEmpty({ ignore_whitespace: true }),
     body("instanceName").notEmpty({ ignore_whitespace: true }),
     body("field").notEmpty({ ignore_whitespace: true }),
+  ];
+};
+
+export const getFormFieldAuditParams = () => {
+  return [
+    query("formName").notEmpty({ ignore_whitespace: true }),
+    query("instanceName").notEmpty({ ignore_whitespace: true }),
+    query("fieldName").notEmpty({ ignore_whitespace: true }),
+    query("rowId").exists(),
+    query("columnName").exists(),
+  ];
+};
+
+export const isFormFieldLockedForm = () => {
+  return [
+    body("formId").notEmpty({ ignore_whitespace: true }),
+    body("formName").notEmpty({ ignore_whitespace: true }),
+    body("instanceName").notEmpty({ ignore_whitespace: true }),
+    body("fieldName").notEmpty({ ignore_whitespace: true }),
+    body("type").notEmpty({ ignore_whitespace: true }),
+    body("ownerId").notEmpty({ ignore_whitespace: true }),
+    query("rowId").exists(),
+    query("columnId").exists(),
+    query("value").exists(),
   ];
 };
 
@@ -92,6 +116,8 @@ export default {
   createFormParams,
   getFormInstanceParams,
   getFormInstancesParams,
-  createFormInstanceParams,
-  insertIntoFormInstanceParams,
+  createFormInstanceForm,
+  insertIntoFormInstanceForm,
+  getFormFieldAuditParams,
+  isFormFieldLockedForm,
 };

@@ -31,7 +31,7 @@ export class FormInstanceRouter {
     router.post(
       `${BASE_URL}/create`,
       [authMiddleware],
-      ValidationMid.createFormInstanceParams(),
+      ValidationMid.createFormInstanceForm(),
       ValidationMid.validate,
       (req: Request, res: Response) =>
         FormInstanceRest.createRouter(req, res, service)
@@ -39,7 +39,7 @@ export class FormInstanceRouter {
     router.post(
       `${BASE_URL}/insert`,
       [authMiddleware],
-      ValidationMid.insertIntoFormInstanceParams(),
+      ValidationMid.insertIntoFormInstanceForm(),
       ValidationMid.validate,
       (req: Request, res: Response) =>
         FormInstanceRest.insertValue(req, res, service)
