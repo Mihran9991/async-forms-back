@@ -15,7 +15,7 @@ export const getFieldJson = (
 ): string => {
   return `"${fieldName}": { "value": "${value}", "owner": "${owner}", "createdAt": "${
     createdAt ?? ""
-  }", "isLocked": "${isLocked}" }`;
+  }", "isLocked": ${isLocked} }`;
 };
 
 export const getNestedFieldJson = (
