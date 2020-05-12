@@ -6,7 +6,6 @@ export class FormFieldDto {
   public fieldName: string;
   public type: string;
   public instanceName: string;
-  public value: string;
   public ownerId: string;
 
   constructor(
@@ -17,7 +16,6 @@ export class FormFieldDto {
     fieldName: string,
     type: string,
     instanceName: string,
-    value: string,
     ownerId: string
   ) {
     this.rowId = rowId;
@@ -27,7 +25,6 @@ export class FormFieldDto {
     this.fieldName = fieldName;
     this.type = type;
     this.instanceName = instanceName;
-    this.value = value;
     this.ownerId = ownerId;
   }
 }

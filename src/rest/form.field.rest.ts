@@ -37,7 +37,6 @@ export function isFieldLockedRouter(
     req.body.fieldName,
     req.body.type,
     req.body.instanceName,
-    req.body.value,
     req.body.formName,
     req.body.ownerId
   );
