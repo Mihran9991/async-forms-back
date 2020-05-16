@@ -26,7 +26,6 @@ class Socket {
       this.disableField(socket);
       this.enableField(socket);
 
-      console.log("socket.request", socket.request.user.dataValues);
       const { name, pictureUrl, uuid, email } = get(
         socket,
         "request.user.dataValues",
@@ -47,8 +46,7 @@ class Socket {
 
     this.io.on("disconnect", async (socket: io.Socket) => {
       const { uuid } = get(socket, "request.user.dataValues", "");
-      // noinspection ES6MissingAwait
-      this.redisService.removeActiveUser(uuid);
+      await this.redisService.removeActiveUser(uuid);
     });
   }
 
@@ -72,7 +70,7 @@ class Socket {
   private enableField(socket: io.Socket): void {
     socket.on(
       socketConstants.FINISH_FORM_FIELD_CHANGE,
-      (data: FormFieldDto) => {
+      (data: FormFieldDto & { value: string }) => {
         console.log(socketConstants.FINISH_FORM_FIELD_CHANGE, data);
         this.redisService
           .isFieldLocked(data)
